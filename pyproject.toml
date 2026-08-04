@@ -75,7 +75,7 @@ security = [
 release = [
     "build>=1.5.0",
     "cyclonedx-bom>=7.3.0",
-    "twine>=6.2.0",
+    "twine>=7.0.0",
 ]
 automation = [
     "nox>=2026.4.10",
