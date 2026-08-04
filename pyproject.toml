@@ -47,21 +47,21 @@ Source = "https://github.com/ryancswallace/economic-evidence-graph"
 
 [dependency-groups]
 test = [
-    "hypothesis>=6.155.7",
+    "hypothesis>=6.164.0",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
 ]
 lint = [
-    "pre-commit>=4.6.0",
-    "ruff>=0.15.18",
+    "pre-commit>=4.6.1",
+    "ruff>=0.16.1",
 ]
 type = [
-    "basedpyright>=1.39.8",
+    "basedpyright>=1.39.9",
 ]
 docs = [
     "linkchecker>=10.6.0",
     "mkdocs-gen-files>=0.5.0",
-    "mkdocs-material>=9,<10",
+    "mkdocs-material>=9.7.7,<10",
     "mkdocs>=1.6.1",
     "mkdocstrings[python]>=1.0.6",
 ]
@@ -70,15 +70,15 @@ security = [
     "deptry>=0.25.1",
     "detect-secrets>=1.5.0",
     "pip-audit>=2.10.1",
-    "zizmor>=1.26.1",
+    "zizmor>=1.28.0",
 ]
 release = [
     "build>=1.5.0",
-    "cyclonedx-bom>=7.3.0",
+    "cyclonedx-bom>=7.3.1",
     "twine>=7.0.0",
 ]
 automation = [
-    "nox>=2026.4.10",
+    "nox>=2026.7.11",
 ]
 dev = [
     { include-group = "automation" },
