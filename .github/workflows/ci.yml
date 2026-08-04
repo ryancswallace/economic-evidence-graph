@@ -1,0 +1,251 @@
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 11 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality checks
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          version: "0.12.1"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Verify lockfile
+        run: make lock-check
+
+      - name: Run Ruff lint and format checks
+        run: make lint
+
+      - name: Run Markdown lint
+        run: make markdownlint
+
+      - name: Run spelling checks
+        run: make spellcheck
+
+      - name: Run Dockerfile lint
+        run: make docker-lint
+
+      - name: Run secret scanning
+        run: make secrets
+
+      - name: Run source security checks
+        run: make security
+
+      - name: Run dependency declaration checks
+        run: make deps
+
+      - name: Audit locked dependencies
+        run: make audit
+
+      - name: Run type checks
+        run: make typecheck
+
+  tests:
+    name: Tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    if: github.event_name != 'schedule'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+
+
+          - os: ubuntu-24.04
+            python-version: "3.11"
+
+          - os: ubuntu-24.04
+            python-version: "3.12"
+
+          - os: ubuntu-24.04
+            python-version: "3.13"
+
+          - os: ubuntu-24.04
+            python-version: "3.14"
+
+          - os: macos-15
+            python-version: "3.14"
+          - os: windows-2025
+            python-version: "3.14"
+
+
+    env:
+      UV_PYTHON: ${{ matrix.python-version }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          version: "0.12.1"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Prepare test report directory
+        run: python -c "from pathlib import Path; Path('reports').mkdir(exist_ok=True)"
+
+      - name: Run tests with coverage
+        run: >-
+          uv run python -m pytest -q
+          --junitxml=reports/junit.xml
+          --cov-report=term-missing
+          --cov-report=xml:reports/coverage.xml
+          --cov-report=json:reports/coverage.json
+
+      - name: Upload test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: reports/
+          if-no-files-found: ignore
+          retention-days: 90
+
+  minimum-dependencies:
+    name: Minimum dependency tests
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+
+          python-version: "3.11"
+
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          version: "0.12.1"
+          enable-cache: true
+
+      - name: Run tests with minimum direct dependency versions
+        run: make test-min-deps
+
+  package:
+    name: Package build and smoke test
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          version: "0.12.1"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Build, validate, smoke-test, and generate SBOM
+        run: make build
+
+      - name: Upload distributions and SBOM
+        uses: actions/upload-artifact@v7
+        with:
+          name: python-package-dist
+          path: |
+            dist/*.tar.gz
+            dist/*.whl
+            dist/*.cdx.json
+          if-no-files-found: error
+          retention-days: 90
+
+  dependency-audit:
+    name: Scheduled dependency audit
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          version: "0.12.1"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Audit locked dependencies
+        run: make audit
+

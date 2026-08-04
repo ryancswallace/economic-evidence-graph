@@ -1,0 +1,108 @@
+site_name: Economic Evidence Graph
+site_description: A versioned, auditable evidence layer for economic research and policy synthesis
+site_author: Ryan Wallace
+site_url: https://ryancswallace.github.io/economic-evidence-graph/
+repo_name: ryancswallace/economic-evidence-graph
+repo_url: https://github.com/ryancswallace/economic-evidence-graph
+edit_uri: blob/main/docs/
+
+docs_dir: docs
+site_dir: site
+strict: true
+
+watch:
+  - src/economic_evidence_graph
+
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    absolute_links: warn
+    unrecognized_links: warn
+    anchors: warn
+
+extra_css:
+  - stylesheets/navigation.css
+
+theme:
+  name: material
+  locale: en
+  font: false
+  features:
+    - content.action.edit
+    - content.action.view
+    - content.code.copy
+    - navigation.footer
+    - navigation.indexes
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.suggest
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+exclude_docs: |
+  _scripts/
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/_scripts/gen_api_reference.py
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - src
+          options:
+            docstring_style: google
+            members_order: source
+            separate_signature: true
+            show_root_heading: true
+            show_signature_annotations: true
+            show_source: true
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - How-to guides:
+      - How-to guides overview: how-to/index.md
+  - Reference:
+      - Reference overview: reference/index.md
+      - API:
+          - Package: reference/api/index.md
+          - Exceptions: reference/api/exceptions.md
+  - Explanation:
+      - Explanation overview: explanation/index.md
+      - Tooling: explanation/tooling.md
+  - Maintainer runbooks:
+      - Maintainer runbooks overview: runbooks/index.md
+      - Release: runbooks/release.md
+  - Project:
+      - Development: project/development.md
+      - Contributing: project/contributing.md
+      - Changelog: project/changelog.md

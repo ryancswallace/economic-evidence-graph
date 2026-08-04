@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use Economic Evidence Graph in your work, please cite it using this metadata."
+title: "Economic Evidence Graph"
+abstract: "A versioned, auditable evidence layer for economic research and policy synthesis"
+version: 0.1.0
+authors:
+  - family-names: "Ryan Wallace"
+    email: "ryancswallace@gmail.com"
+repository-code: "https://github.com/ryancswallace/economic-evidence-graph"
+url: "https://ryancswallace.github.io/economic-evidence-graph/"
+license: "LicenseRef-Proprietary"
+keywords:
+  - python

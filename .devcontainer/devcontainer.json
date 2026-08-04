@@ -1,0 +1,78 @@
+{
+    "name": "economic-evidence-graph-dev",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "DEBIAN_VERSION": "bookworm",
+            "PYTHON_VERSION": "3.14",
+            "UV_VERSION": "0.12.1"
+        }
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            "version": "latest",
+            "moby": true,
+            "installDockerBuildx": true,
+            "dockerDashComposeVersion": "none",
+            "installDockerComposeSwitch": false
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/node:2": {
+            "version": "24"
+        }
+    },
+    "containerEnv": {
+        "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+        "UV_LINK_MODE": "copy"
+    },
+    "customizations": {
+        "codespaces": {
+            "openFiles": [
+                "README.md",
+                "docs/project/development.md"
+            ]
+        },
+        "vscode": {
+            "settings": {
+                "editor.codeActionsOnSave": {
+                    "source.fixAll.ruff": "explicit",
+                    "source.organizeImports.ruff": "explicit"
+                },
+                "editor.formatOnSave": true,
+                "files.eol": "\n",
+                "files.insertFinalNewline": true,
+                "python.analysis.typeCheckingMode": "standard",
+                "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+                "python.testing.pytestArgs": [
+                    "tests"
+                ],
+                "python.testing.pytestEnabled": true,
+                "python.testing.unittestEnabled": false,
+                "ruff.nativeServer": "on",
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff"
+                }
+            },
+            "extensions": [
+                "charliermarsh.ruff",
+                "davidanson.vscode-markdownlint",
+                "detachhead.basedpyright",
+                "github.vscode-github-actions",
+                "github.vscode-pull-request-github",
+                "mikestead.dotenv",
+                "ms-azuretools.vscode-containers",
+                "ms-python.debugpy",
+                "ms-python.python",
+                "ms-vscode.makefile-tools",
+                "redhat.vscode-yaml",
+                "streetsidesoftware.code-spell-checker",
+                "tamasfe.even-better-toml",
+                "vivaxy.vscode-conventional-commits"
+            ]
+        }
+    },
+    "postCreateCommand": "make hooks-install",
+    "remoteUser": "vscode"
+}

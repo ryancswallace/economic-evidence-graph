@@ -1,0 +1,109 @@
+# Pull request labels applied by actions/labeler.
+# Keep these names synchronized with .github/labels.yml.
+
+changed-files-labels-limit: 8
+max-files-changed: 200
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "docs/**"
+          - "mkdocs.yml"
+
+api:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/economic_evidence_graph/__init__.py"
+          - "src/economic_evidence_graph/_core.py"
+          - "src/economic_evidence_graph/exceptions.py"
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tests/**"
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**"
+          - ".github/dependabot.yml"
+          - ".github/settings.yml"
+          - ".github/labeler.yml"
+          - ".github/labels.yml"
+
+github-actions:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/dependabot.yml"
+          - ".pre-commit-config.yaml"
+          - ".devcontainer/**"
+          - "Dockerfile"
+          - ".dockerignore"
+          - "pyproject.toml"
+          - "uv.lock"
+          - "package.json"
+          - "package-lock.json"
+
+packaging:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "pyproject.toml"
+          - "src/economic_evidence_graph/py.typed"
+          - "CITATION.cff"
+          - "LICENSE"
+          - "RELEASE.md"
+
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "SECURITY.md"
+          - ".secrets.baseline"
+          - ".github/workflows/**"
+          - "docs/explanation/*security*.md"
+          - "docs/runbooks/*security*.md"
+
+automation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "Makefile"
+          - "noxfile.py"
+          - ".github/dependabot.yml"
+          - ".github/settings.yml"
+          - ".pre-commit-config.yaml"
+          - ".markdownlint-cli2.yaml"
+          - "Dockerfile"
+          - ".dockerignore"
+          - "cspell.json"
+
+dev-environment:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".devcontainer/**"
+          - ".vscode/**"
+          - ".python-version"
+
+release:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "CHANGELOG.md"
+          - "RELEASE.md"
+          - "docs/runbooks/release.md"
+  - head-branch:
+      - "^(release|prepare-release)/"
+
+maintenance:
+  - head-branch:
+      - "^(chore|maintenance|deps|dependabot)/"
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+          - "AGENTS.md"
+          - ".github/CODEOWNERS"
+          - ".gitattributes"
+          - ".gitignore"

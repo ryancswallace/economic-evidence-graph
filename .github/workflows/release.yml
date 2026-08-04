@@ -1,0 +1,194 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the built distributions to PyPI.
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build release artifacts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          version: "0.12.1"
+          enable-cache: false
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Build, validate, smoke-test, and generate SBOM
+        run: make build
+
+      - name: Attest release artifacts
+        uses: actions/attest@v4
+        with:
+          subject-path: dist/*
+
+      - name: Upload package distributions
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-dist
+          path: |
+            dist/*.tar.gz
+            dist/*.whl
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload release SBOM
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-sbom
+          path: dist/*.cdx.json
+          if-no-files-found: error
+          retention-days: 90
+
+  github-release-assets:
+    name: Upload GitHub Release assets
+    if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download package distributions
+        uses: actions/download-artifact@v8
+        with:
+          name: release-dist
+          path: dist
+
+      - name: Download release SBOM
+        uses: actions/download-artifact@v8
+        with:
+          name: release-sbom
+          path: dist
+
+      - name: Upload assets to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: >-
+          gh release upload "$GITHUB_REF_NAME"
+          dist/*.tar.gz
+          dist/*.whl
+          dist/*.cdx.json
+          --clobber
+
+  publish:
+    name: Publish to PyPI
+    if: (github.event_name == 'release' || inputs.publish == 'true') && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: pypi
+      url: https://pypi.org/
+
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: release-dist
+          path: dist
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  verify:
+    name: Verify PyPI install
+    if: (github.event_name == 'release' || inputs.publish == 'true') && startsWith(github.ref, 'refs/tags/v')
+    needs: publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Resolve release version
+        id: version
+        shell: bash
+        env:
+          RELEASE_REF: ${{ github.ref_name }}
+        run: |
+          release_ref="${RELEASE_REF}"
+          case "$release_ref" in
+            v*) version="${release_ref#v}" ;;
+            *)
+              echo "Release verification only runs for v* tags; got '${release_ref}'."
+              exit 1
+              ;;
+          esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          version: "0.12.1"
+          enable-cache: false
+
+      - name: Verify package installation from PyPI
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          PACKAGE_NAME: ${{ github.event.repository.name }}
+        run: |
+          verify_env="$(mktemp -d)"
+          trap 'rm -rf "$verify_env"' EXIT
+          uv venv --quiet "$verify_env"
+          for attempt in $(seq 1 20); do
+            if VIRTUAL_ENV="$verify_env" uv pip install --quiet "${PACKAGE_NAME}==$VERSION"; then
+              break
+            fi
+            if [ "$attempt" -eq 20 ]; then
+              echo "Failed to install ${PACKAGE_NAME}==$VERSION from PyPI after $attempt attempts."
+              exit 1
+            fi
+            sleep 30
+          done
+          "$verify_env/bin/python" -c "import importlib.metadata as m; print(m.version('${PACKAGE_NAME}'))"

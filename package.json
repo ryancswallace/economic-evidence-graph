@@ -1,0 +1,19 @@
+{
+    "name": "economic-evidence-graph",
+    "private": true,
+    "engines": {
+        "node": ">=22.18.0"
+    },
+    "devDependencies": {
+        "cspell": "^10.0.1",
+        "dockerfile-utils": "^0.16.3",
+        "markdownlint-cli2": "^0.22.1"
+    },
+    "overrides": {
+        "js-yaml": "4.2.0",
+        "markdown-it": "14.2.0"
+    },
+    "scripts": {
+        "workflow-env-lint": "node scripts/check-github-environments.mjs"
+    }
+}

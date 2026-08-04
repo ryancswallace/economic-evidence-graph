@@ -1,0 +1,26 @@
+# This file records the answers used to generate this project.
+# Commit it so `ppf update` can apply future template releases.
+_commit: v1.0.1
+_src_path: https://github.com/ryancswallace/python-project-foundry.git
+author_email: ryancswallace@gmail.com
+author_name: Ryan Wallace
+copyright_year: 2026
+coverage_fail_under: 95
+documentation_url: https://ryancswallace.github.io/economic-evidence-graph/
+exception_class_name: EconomicEvidenceGraphError
+github_environment_reviewer_id: '20177051'
+initial_version: 0.1.0
+initialize_git_repository: true
+license: LicenseRef-Proprietary
+package_name: economic_evidence_graph
+project_description: A versioned, auditable evidence layer for economic research and
+    policy synthesis
+project_name: Economic Evidence Graph
+project_slug: economic-evidence-graph
+python_default_version: '3.14'
+python_max_version_exclusive: '3.15'
+python_min_version: '3.11'
+repository_name: economic-evidence-graph
+repository_owner: ryancswallace
+repository_url: https://github.com/ryancswallace/economic-evidence-graph
+run_setup_tasks: true

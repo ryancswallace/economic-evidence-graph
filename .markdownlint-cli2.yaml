@@ -1,0 +1,26 @@
+config:
+  default: true
+  MD013: false
+  MD024:
+    siblings_only: true
+  MD041: false
+
+gitignore: true
+
+globs:
+  - "**/*.md"
+
+ignores:
+  - "__pycache__/**"
+  - ".coverage/**"
+  - ".git/**"
+  - ".hypothesis/**"
+  - ".nox/**"
+  - ".pytest_cache/**"
+  - ".ruff_cache/**"
+  - ".venv/**"
+  - "build/**"
+  - "dist/**"
+  - "node_modules/**"
+  - "reports/**"
+  - "vendor/**"
