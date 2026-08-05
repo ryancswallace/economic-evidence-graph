@@ -142,22 +142,36 @@ def _parse_html(content: bytes) -> ParsedDocument:
         parser.close()
     except (ValueError, AssertionError) as error:
         raise ParseFailure(QuarantineReason.MALFORMED, "HTML parser rejected malformed markup") from error
+    candidate_blocks = parser.primary_blocks if parser.has_primary_content_root else parser.blocks
+    blocks: list[tuple[tuple[str, ...], str]] = []
+    seen: set[str] = set()
+    removed = 0
+    for section, text in candidate_blocks:
+        key = text.casefold()
+        if not _is_substantive_html_text(text) or (key in seen and len(text) <= 200):
+            removed += 1
+            continue
+        seen.add(key)
+        blocks.append((section, text))
     units = tuple(
         ParsedUnit(index, section, f"html:block:{index}", None, None, text)
-        for index, (section, text) in enumerate(parser.blocks)
-        if text
+        for index, (section, text) in enumerate(blocks)
     )
     text = "\n\n".join(unit.text for unit in units)
     if not text:
         raise ParseFailure(QuarantineReason.EMPTY_TEXT, "HTML contains no readable block text")
-    warnings = ("missing_heading_structure",) if all(unit.section_path == ("Document",) for unit in units) else ()
+    warnings: list[str] = []
+    if all(unit.section_path == ("Document",) for unit in units):
+        warnings.append("missing_heading_structure")
+    if removed or parser.skipped_container_count:
+        warnings.append("boilerplate_removed")
     return ParsedDocument(
         "stdlib_html",
-        "1",
+        "2",
         "eeg.normalized-document.v1",
         text,
         units,
-        QualityReport("html_blocks", None, len(text), None, False, warnings),
+        QualityReport("html_blocks", None, len(text), None, False, tuple(warnings)),
     )
 
 
@@ -212,25 +226,69 @@ class _BlockHtmlParser(HTMLParser):
     """Extract headings and block-level reading order while skipping active UI."""
 
     _BLOCKS = frozenset({"p", "li", "blockquote", "td", "th", "figcaption"})
-    _SKIP = frozenset({"script", "style", "noscript", "svg", "nav", "form"})
+    _PRIMARY = frozenset({"main", "article"})
+    _SKIP = frozenset({"script", "style", "noscript", "svg", "nav", "form", "header", "footer", "aside", "menu"})
+    _SKIP_ATTRIBUTE_TOKENS = frozenset(
+        {
+            "breadcrumb",
+            "breadcrumbs",
+            "cookie",
+            "footer",
+            "header",
+            "masthead",
+            "menu",
+            "nav",
+            "navbar",
+            "navigation",
+            "share",
+            "social",
+            "utility",
+        }
+    )
+    _VOID = frozenset(
+        {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
+    )
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self._skip_depth = 0
+        self._primary_depth = 0
         self._capture: str | None = None
         self._buffer: list[str] = []
         self._headings: list[str] = []
         self.blocks: list[tuple[tuple[str, ...], str]] = []
+        self.primary_blocks: list[tuple[tuple[str, ...], str]] = []
+        self.skipped_container_count = 0
+        self.has_primary_content_root = False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         """Start a heading or readable block."""
-        del attrs
         tag = tag.lower()
-        if tag in self._SKIP:
-            self._skip_depth += 1
-        elif self._skip_depth == 0 and (tag in self._BLOCKS or re.fullmatch(r"h[1-6]", tag)):
+        if self._skip_depth:
+            if tag not in self._VOID:
+                self._skip_depth += 1
+            return
+        if tag in self._SKIP or _has_boilerplate_attributes(attrs, self._SKIP_ATTRIBUTE_TOKENS):
+            self.skipped_container_count += 1
+            if tag not in self._VOID:
+                self._skip_depth = 1
+            return
+        if tag in self._PRIMARY:
+            self.has_primary_content_root = True
+            if self._primary_depth == 0:
+                self._headings = []
+            self._primary_depth += 1
+        elif tag in self._BLOCKS or re.fullmatch(r"h[1-6]", tag):
             self._capture = tag
             self._buffer = []
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        """Ignore void elements without corrupting skipped-container depth."""
+        if self._skip_depth:
+            return
+        self.handle_starttag(tag, attrs)
+        if tag.casefold() not in self._VOID:
+            self.handle_endtag(tag)
 
     def handle_data(self, data: str) -> None:
         """Collect visible text."""
@@ -240,10 +298,13 @@ class _BlockHtmlParser(HTMLParser):
     def handle_endtag(self, tag: str) -> None:
         """Finish a heading or block."""
         tag = tag.lower()
-        if tag in self._SKIP and self._skip_depth:
+        if self._skip_depth:
             self._skip_depth -= 1
             return
-        if self._skip_depth or tag != self._capture:
+        if tag in self._PRIMARY and self._primary_depth:
+            self._primary_depth -= 1
+            return
+        if tag != self._capture:
             return
         text = _normalize_text(" ".join(self._buffer))
         if re.fullmatch(r"h[1-6]", tag):
@@ -251,6 +312,25 @@ class _BlockHtmlParser(HTMLParser):
             self._headings = self._headings[: level - 1]
             self._headings.append(text)
         elif text:
-            self.blocks.append((tuple(self._headings) or ("Document",), text))
+            block = (tuple(self._headings) or ("Document",), text)
+            self.blocks.append(block)
+            if self._primary_depth:
+                self.primary_blocks.append(block)
         self._capture = None
         self._buffer = []
+
+
+def _has_boilerplate_attributes(attrs: list[tuple[str, str | None]], tokens: frozenset[str]) -> bool:
+    """Recognize conventional navigation and site-chrome containers."""
+    values = " ".join(
+        value for name, value in attrs if value is not None and name.casefold() in {"class", "id", "role", "aria-label"}
+    )
+    attribute_tokens = set(re.findall(r"[a-z]+", values.casefold()))
+    return bool(attribute_tokens.intersection(tokens))
+
+
+def _is_substantive_html_text(text: str) -> bool:
+    """Reject headings and link labels that cannot stand alone as evidence."""
+    words = re.findall(r"\b[\w'-]+\b", text, flags=re.UNICODE)
+    has_sentence_boundary = re.search(r"[.!?]", text) is not None
+    return len(text) >= 32 and len(words) >= 4 and (len(text) > 80 or has_sentence_boundary)

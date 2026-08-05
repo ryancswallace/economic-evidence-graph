@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from datetime import datetime
-from urllib.parse import urlsplit
 
+from economic_evidence_graph.application.canonicalization import canonical_version_id, canonical_work_id
 from economic_evidence_graph.domain import (
     AvailabilityDecision,
     CorpusSearchRecord,
@@ -39,22 +40,19 @@ class SearchProjector:
         evidence_documents: list[SearchEvidenceDocument] = []
         prepared: list[tuple[CorpusSearchRecord, str, str, AvailabilityDecision]] = []
         counts: dict[str, set[str]] = defaultdict(set)
+        repeated_units: dict[tuple[str, str], set[str]] = defaultdict(set)
 
         for record in records:
             if record.suppressed:
                 continue
-            work_id = _work_id(record)
-            asset_fingerprint = tuple(sorted(item.sha256 for item in record.assets)) or ("metadata_only",)
-            version_id = stable_id(
-                "ver",
-                record.metadata.source_code,
-                record.metadata.source_identifier,
-                record.metadata.metadata_sha256,
-                *asset_fingerprint,
-            )
+            work_id = canonical_work_id(record)
+            version_id = canonical_version_id(record)
             availability = availability_decision(record)
             prepared.append((record, work_id, version_id, availability))
             counts[work_id].add(version_id)
+            for document in record.documents:
+                for unit in document.units:
+                    repeated_units[(record.metadata.source_code, _normalized_unit_text(unit.text))].add(work_id)
 
         emitted_versions: set[str] = set()
         emitted_evidence: set[tuple[str, str, str, str]] = set()
@@ -120,6 +118,11 @@ class SearchProjector:
                 if asset is None:
                     continue
                 for unit in document.units:
+                    repetition_count = len(
+                        repeated_units[(record.metadata.source_code, _normalized_unit_text(unit.text))]
+                    )
+                    if not _is_substantive_evidence(unit.text) or _is_repeated_boilerplate(unit.text, repetition_count):
+                        continue
                     evidence_key = (version_id, asset.sha256, unit.locator, document.text_sha256)
                     if evidence_key in emitted_evidence:
                         continue
@@ -170,6 +173,26 @@ class SearchProjector:
             tuple(sorted(work_documents, key=lambda item: item.id)),
             tuple(sorted(evidence_documents, key=lambda item: item.id)),
         )
+
+
+def _normalized_unit_text(text: str) -> str:
+    """Normalize evidence text for cross-document boilerplate detection."""
+    return " ".join(text.casefold().split())
+
+
+def _is_substantive_evidence(text: str) -> bool:
+    """Require enough standalone context for an evidence search result."""
+    words = re.findall(r"\b[\w'-]+\b", text, flags=re.UNICODE)
+    has_sentence_boundary = re.search(r"[.!?]", text) is not None
+    return len(text.strip()) >= 32 and len(words) >= 4 and (len(text) > 80 or has_sentence_boundary)
+
+
+def _is_repeated_boilerplate(text: str, repetition_count: int) -> bool:
+    """Reject repeated short labels while retaining repeated substantive sentences."""
+    if repetition_count < 3 or len(text) > 200:
+        return False
+    words = re.findall(r"\b[\w'-]+\b", text, flags=re.UNICODE)
+    return len(words) <= 8 or re.search(r"[.!?]", text) is None
 
 
 class SearchIndexer:
@@ -271,18 +294,3 @@ def _evidence_availability(metadata_availability: AvailabilityDecision, retrieve
         retrieved_at.isoformat(),
         "document bytes were not independently archived at the earlier metadata date",
     )
-
-
-def _work_id(record: CorpusSearchRecord) -> str:
-    """Collapse only exact DOI/RePEc identities; retain every other source work."""
-    identities = {item.scheme.casefold(): item.value.strip().casefold() for item in record.metadata.identifiers}
-    if doi := identities.get("doi"):
-        normalized = doi.removeprefix("https://doi.org/").removeprefix("doi:")
-        return stable_id("wrk", "doi", normalized)
-    for scheme in ("repec", "handle"):
-        if value := identities.get(scheme):
-            return stable_id("wrk", "repec", value.removeprefix("repec:"))
-    source_identifier = record.metadata.source_identifier.casefold()
-    if source_identifier.startswith("repec:") or urlsplit(record.metadata.metadata_url).hostname == "ideas.repec.org":
-        return stable_id("wrk", "repec", source_identifier.removeprefix("repec:"))
-    return stable_id("wrk", record.metadata.source_code, source_identifier)
