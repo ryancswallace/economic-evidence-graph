@@ -1,3 +1,5 @@
 # Runbooks
 
-Use this section for maintainer procedures and operational playbooks.
+- [Database migrations](database-migrations.md)
+- [Local operations and pilot acceptance](local-operations.md)
+- [Release](release.md)
