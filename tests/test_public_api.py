@@ -1,14 +1,17 @@
-"""Tests for the public package API."""
+"""Tests for the intentional package API."""
 
 import economic_evidence_graph
 
 
 def test_public_exports_are_available() -> None:
-    """The package exports its documented public objects."""
+    """Only the stable package entry points are exported."""
     expected_exports = {
         "EconomicEvidenceGraphError",
+        "EegClient",
+        "EegClientError",
+        "Settings",
         "__version__",
-        "greet",
+        "create_app",
     }
 
     assert set(economic_evidence_graph.__all__) == expected_exports
