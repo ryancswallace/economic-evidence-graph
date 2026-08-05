@@ -393,15 +393,18 @@ def test_repec_rsync_runner_uses_no_shell_and_wraps_failures(
 ) -> None:
     """The default rsync runner writes a bounded destination and normalizes process failures."""
     destination = tmp_path / "items.redif"
+    executable = tmp_path / "bin" / "rsync"
 
     def success(arguments: list[str], **kwargs: object) -> None:
-        assert arguments[0].endswith("/rsync")
+        assert arguments[0] == str(executable)
         assert kwargs["check"] is True
+        assert kwargs["capture_output"] is True
+        assert "shell" not in kwargs
         Path(arguments[-1]).write_bytes(b"metadata")
 
     monkeypatch.setattr(
         "economic_evidence_graph.connectors.repec._rsync_executable",
-        lambda: Path("/usr/bin/rsync"),
+        lambda: executable,
     )
     monkeypatch.setattr("economic_evidence_graph.connectors.repec.subprocess.run", success)
     _run_rsync("rsync.repec.org::RePEc-ReDIF/fip/fedbwp/items.redif", destination)
