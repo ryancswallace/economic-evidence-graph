@@ -15,11 +15,16 @@ PACKAGE_NAME ?= economic_evidence_graph
 DIST_FILE_STEM ?= economic_evidence_graph
 DOCKER ?= docker
 DOCKER_SOCKET ?= /var/run/docker.sock
+PODMAN ?= podman
+PODMAN_COMPOSE ?= podman-compose
+LOCAL_COMPOSE ?= $(DOCKER) compose
 IMAGE_NAME ?= ghcr.io/ryancswallace/economic-evidence-graph
 IMAGE_TAG ?= local
 TEST_IMAGE_NAME ?= ghcr.io/ryancswallace/economic-evidence-graph-test
 TRIVY_IMAGE ?= docker.io/aquasec/trivy:0.67.2
 LINKCHECK_REPORT ?= reports/linkchecker.xml
+OPENAPI_CONTRACT ?= clients/openapi/eeg-v1.json
+PROMOTION_MANIFEST ?= dist/eeg-promotion-manifest.json
 MIN_DEPS_PYTHON ?= 3.11
 NOX_ARGS ?=
 PRECOMMIT_ARGS ?= --all-files
@@ -39,6 +44,7 @@ RELEASE_TAG_BASE ?= main
 .PHONY: format lint typecheck markdownlint workflow-lint workflow-env-lint spellcheck
 .PHONY: test test-min-deps test-matrix
 .PHONY: docs docs-linkcheck serve-docs
+.PHONY: migrate serve-api platform-smoke rebuild-search search-smoke readiness openapi-contract promotion-manifest tool-audit local-ready local-up local-down local-status local-logs local-smoke
 .PHONY: docker-lint docker-ready docker-build docker-build-test docker-test docker-smoke docker-scan docker-check
 .PHONY: lock-check deps secrets security audit
 .PHONY: release-version-check release-preflight prepare-release release-pr-ready release-pr release-tag sbom smoke-dist validate-dist build
@@ -72,6 +78,22 @@ help:
 	@echo "  docs                  Build the documentation site"
 	@echo "  docs-linkcheck        Check links in the built documentation site"
 	@echo "  serve-docs            Serve the documentation site locally"
+	@echo ""
+	@echo "Economic Evidence Graph local runtime:"
+	@echo "  migrate               Upgrade the configured local PostgreSQL database"
+	@echo "  serve-api             Run the API with the configured local providers"
+	@echo "  platform-smoke        Run the fixture acceptance slice on host providers"
+	@echo "  rebuild-search        Build and activate search indexes from the local corpus"
+	@echo "  search-smoke          Run a representative local hybrid search"
+	@echo "  readiness             Check providers, migration, active index, and disk headroom"
+	@echo "  openapi-contract      Regenerate the checked-in v1 API compatibility contract"
+	@echo "  promotion-manifest    Seal provider-neutral local promotion metadata"
+	@echo "  tool-audit            Inspect content-minimized agent-tool invocation records"
+	@echo "  local-up              Build and start the complete Colima/Docker-compatible composition"
+	@echo "  local-down            Stop the composition while preserving data volumes"
+	@echo "  local-status          Show composition service status"
+	@echo "  local-logs            Follow API, PostgreSQL, and OpenSearch logs"
+	@echo "  local-smoke           Run the fixture acceptance slice in the composition"
 	@echo ""
 	@echo "Docker:"
 	@echo "  docker-lint           Lint Dockerfiles"
@@ -203,6 +225,53 @@ docs-linkcheck: docs
 
 serve-docs: install
 	DISABLE_MKDOCS_2_WARNING=true uv run mkdocs serve --strict
+
+migrate: install
+	uv run eeg migrate
+
+serve-api: install
+	uv run eeg serve
+
+platform-smoke: install
+	uv run eeg platform-smoke
+
+rebuild-search: install
+	uv run eeg rebuild-search
+
+search-smoke: install
+	uv run eeg search --limit 5 "monetary policy inflation"
+
+readiness: install
+	uv run eeg readiness
+
+openapi-contract: install
+	uv run eeg export-openapi --output "$(OPENAPI_CONTRACT)"
+
+promotion-manifest: install
+	uv run eeg promotion-manifest --output "$(PROMOTION_MANIFEST)"
+
+tool-audit: install
+	uv run eeg tool-audit --limit 100
+
+local-ready:
+	@command -v "$(DOCKER)" >/dev/null 2>&1 || { echo "A Docker-compatible CLI is required; Colima is recommended on macOS."; exit 1; }
+	@"$(DOCKER)" info >/dev/null 2>&1 || { echo "The Docker-compatible runtime is not reachable; start Colima or set DOCKER."; exit 1; }
+	@$(LOCAL_COMPOSE) version >/dev/null 2>&1 || { echo "The Docker Compose plugin is required."; exit 1; }
+
+local-up: local-ready
+	$(LOCAL_COMPOSE) up --build --detach
+
+local-down: local-ready
+	$(LOCAL_COMPOSE) down
+
+local-status: local-ready
+	$(LOCAL_COMPOSE) ps
+
+local-logs: local-ready
+	$(LOCAL_COMPOSE) logs --follow api postgres opensearch
+
+local-smoke: local-ready
+	$(LOCAL_COMPOSE) run --rm api eeg platform-smoke
 
 docker-lint: npm-install
 	npx dockerfile-utils lint Dockerfile .devcontainer/Dockerfile

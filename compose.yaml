@@ -1,0 +1,84 @@
+name: economic-evidence-graph
+
+services:
+  postgres:
+    image: docker.io/library/postgres:18.4-alpine3.24
+    environment:
+      POSTGRES_DB: eeg
+      POSTGRES_PASSWORD: ${EEG_POSTGRES_PASSWORD:?Set EEG_POSTGRES_PASSWORD}
+      POSTGRES_USER: eeg
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eeg -d eeg"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "127.0.0.1:5432:5432"
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql
+
+  opensearch:
+    image: docker.io/opensearchproject/opensearch:3.7.0
+    environment:
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: -Xms2g -Xmx2g
+      bootstrap.memory_lock: "true"
+      discovery.type: single-node
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1:9200/_cluster/health >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    ports:
+      - "127.0.0.1:9200:9200"
+      - "127.0.0.1:9600:9600"
+    restart: unless-stopped
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+
+  migrate:
+    build:
+      context: .
+      target: runtime
+    command: ["eeg", "migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: &application-environment
+      EEG_ARTIFACT_ROOT: /data/artifacts
+      EEG_DATABASE_URL: postgresql+psycopg://eeg:${EEG_POSTGRES_PASSWORD}@postgres:5432/eeg
+      EEG_OPENSEARCH_URL: http://opensearch:9200
+      EEG_PROFILE: local
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      target: runtime
+    command: ["eeg", "serve"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      opensearch:
+        condition: service_healthy
+    environment:
+      <<: *application-environment
+      EEG_API_HOST: 0.0.0.0
+      EEG_API_PORT: "8000"
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    volumes:
+      - artifact-data:/data/artifacts
+
+volumes:
+  artifact-data:
+  opensearch-data:
+  postgres-data:

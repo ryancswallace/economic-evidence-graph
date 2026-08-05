@@ -40,6 +40,14 @@ LABEL org.opencontainers.image.source="https://github.com/ryancswallace/economic
 
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 COPY --chown=app:app README.md LICENSE ./
+COPY --chown=app:app config ./config
+
+USER root
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes rsync \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /data/artifacts \
+    && chown -R app:app /data
 
 USER app
 
