@@ -16,7 +16,17 @@ from sqlalchemy import create_engine
 
 from economic_evidence_graph import cli
 from economic_evidence_graph.api import create_app
-from economic_evidence_graph.application import RetrievalService, SearchIndexer, SearchProjector, availability_decision
+from economic_evidence_graph.application import (
+    CanonicalWorkProjector,
+    CatalogService,
+    EvidencePackExporter,
+    ExportRequest,
+    LocalReadinessService,
+    RetrievalService,
+    SearchIndexer,
+    SearchProjector,
+    availability_decision,
+)
 from economic_evidence_graph.bootstrap import Container
 from economic_evidence_graph.domain import (
     AcquiredAsset,
@@ -54,6 +64,7 @@ from economic_evidence_graph.providers import (
     DeterministicEconomicsEmbedding,
     DeterministicIdFactory,
     FrozenClock,
+    InMemoryArtifactStore,
     InMemoryRepository,
     InMemorySearchIndex,
     OpenSearchIndex,
@@ -291,6 +302,55 @@ def test_projection_preserves_versions_exact_identity_and_suppression() -> None:
         "metadata_only",
     )
     assert all(item.source_identifier != "blocked" for item in works)
+
+
+def test_projection_suppresses_short_and_cross_document_boilerplate() -> None:
+    """Repeated site chrome and label-only blocks never enter the evidence index."""
+    records: list[CorpusSearchRecord] = []
+    for index in range(3):
+        item = _ingested(f"boilerplate-{index}")
+        document = item.documents[0]
+        units = (
+            replace(
+                document.units[0],
+                id=f"navigation_{index}",
+                ordinal=0,
+                text="Monetary Policy & Economic Research",
+            ),
+            replace(
+                document.units[0],
+                id=f"label_{index}",
+                ordinal=1,
+                text="Monetary Policy",
+            ),
+            replace(
+                document.units[0],
+                id=f"evidence_{index}",
+                ordinal=2,
+                text=f"Study {index} estimates a persistent output response after a monetary policy shock.",
+            ),
+        )
+        if index == 0:
+            units += (
+                replace(
+                    document.units[0],
+                    id="unique_navigation",
+                    ordinal=3,
+                    text="Economic Policy Research Resources",
+                ),
+            )
+        document = replace(document, id=f"document_{index}", units=units)
+        records.append(CorpusSearchRecord(item.metadata, item.assets, (document,)))
+
+    _, evidence = SearchProjector(
+        registry=SourceRegistry.load(_ROOT / "config/source-registry.toml"),
+        embeddings=DeterministicEconomicsEmbedding(64),
+    ).project(tuple(records))
+
+    assert len(evidence) == 3
+    assert all("Economic Research" not in item.text for item in evidence)
+    assert all(item.text != "Monetary Policy" for item in evidence)
+    assert all(item.text != "Economic Policy Research Resources" for item in evidence)
 
 
 def test_projection_consolidates_unchanged_observations_but_splits_changed_content() -> None:
@@ -767,17 +827,37 @@ def test_sql_search_projection_generation_and_run_round_trip() -> None:
     response = sql_retrieval.search(_request(save=True))
     assert response.search_run_id is not None
     assert repository.get_search_run(response.search_run_id) is not None
+    catalog = CatalogService(
+        repository,
+        corpus_repository=repository,
+        projector=CanonicalWorkProjector(SourceRegistry.load(_ROOT / "config/source-registry.toml")),
+    )
+    bundle = catalog.get_work(response.results[0].work_id)
+    assert bundle.work.id == response.results[0].work_id
+    assert response.results[0].evidence is not None
+    assert response.results[0].evidence.evidence_unit_id in {item.id for item in bundle.evidence_units}
+    exported = EvidencePackExporter(
+        catalog=catalog,
+        artifacts=InMemoryArtifactStore(),
+        clock=FrozenClock(_NOW),
+    ).export(ExportRequest((bundle.work.id,), snapshot_id=bundle.snapshot.id))
+    assert exported.snapshot_id == bundle.snapshot.id
     repository.close()
 
 
 def test_search_api_workbench_search_evidence_and_replay(memory_system: object) -> None:
     """The local workbench and all Step 3 HTTP contracts operate over one generation."""
-    repository = memory_system.repository  # type: ignore[attr-defined]
-    repository.put_ingested_record(_ingested("api-search"))
-    _, index, retrieval, indexer = _search_system(_ingested("api-search"))
+    repository, index, retrieval, indexer = _search_system(_ingested("api-search"))
     indexer.rebuild()
+    registry = SourceRegistry.load(_ROOT / "config/source-registry.toml")
     container: Container = replace(
         memory_system.container,  # type: ignore[attr-defined]
+        catalog_repository=repository,
+        catalog=CatalogService(
+            repository,
+            corpus_repository=repository,
+            projector=CanonicalWorkProjector(registry),
+        ),
         retrieval=retrieval,
         indexer=indexer,
         search_index=index,
@@ -800,7 +880,49 @@ def test_search_api_workbench_search_evidence_and_replay(memory_system: object) 
     assert replay.json()["index_generation_id"] == payload["index_generation_id"]
     evidence_id = payload["results"][0]["evidence"]["evidence_unit_id"]
     assert client.get(f"/v1/evidence/{evidence_id}").json()["content_sha256"] == _SHA_B
+    work = client.get(f"/v1/works/{payload['results'][0]['work_id']}")
+    assert work.status_code == 200
+    assert work.json()["work"]["id"] == payload["results"][0]["work_id"]
+    assert evidence_id in {item["id"] for item in work.json()["evidence_units"]}
     assert client.get("/health/ready").status_code == 200
+
+
+def test_http_readiness_uses_migration_index_and_disk_checks(memory_system: object, tmp_path: Path) -> None:
+    """HTTP readiness fails closed when any authoritative local acceptance check fails."""
+    repository, index, _, indexer = _search_system(_ingested("ready"))
+    readiness = LocalReadinessService(
+        catalog=repository,
+        artifacts=memory_system.artifacts,  # type: ignore[attr-defined]
+        search_repository=repository,
+        search_index=index,
+        artifact_root=tmp_path,
+        minimum_free_space_gib=1,
+        database_revision=repository.current_migration_revision,
+    )
+    container = replace(memory_system.container, readiness=readiness)  # type: ignore[attr-defined]
+    client = ApiClient(create_app(container))
+
+    missing_index = client.get("/health/ready")
+    assert missing_index.status_code == 503
+    assert missing_index.json()["code"] == "service_not_ready"
+    assert missing_index.json()["context"] == {"failed_checks": "active_index_generation"}
+
+    indexer.rebuild()
+    assert client.get("/health/ready").status_code == 200
+
+    failing_readiness = LocalReadinessService(
+        catalog=repository,
+        artifacts=memory_system.artifacts,  # type: ignore[attr-defined]
+        search_repository=repository,
+        search_index=index,
+        artifact_root=tmp_path,
+        minimum_free_space_gib=1024,
+        database_revision=lambda: "stale-revision",
+    )
+    failing_client = ApiClient(create_app(replace(container, readiness=failing_readiness)))
+    failed = failing_client.get("/health/ready")
+    assert failed.status_code == 503
+    assert failed.json()["context"] == {"failed_checks": "database_migration,artifact_disk_headroom"}
 
 
 def test_search_api_requires_configured_service(memory_system: object) -> None:
