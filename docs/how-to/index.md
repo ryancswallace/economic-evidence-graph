@@ -1,3 +1,4 @@
 # How-To Guides
 
-Add task-focused guides here as the project grows.
+- [Run the complete local platform](local-development.md)
+- [Use clients and agent tools](clients-and-agent-tools.md)
