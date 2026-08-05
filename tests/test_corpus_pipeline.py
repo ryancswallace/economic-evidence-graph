@@ -84,11 +84,16 @@ def test_parser_routes_html_text_xml_json_and_pdf() -> None:
     """All approved deterministic parser routes create structural units."""
     router = DocumentParserRouter()
     html = router.parse(
-        b"<html><body><h1>Findings</h1><p>Inflation declined.</p><script>ignore()</script></body></html>",
+        (
+            b"<html><body><h1>Findings</h1>"
+            b"<p>Inflation declined substantially in the latest quarterly data release.</p>"
+            b"<script>ignore()</script></body></html>"
+        ),
         media_type="application/octet-stream",
     )
     assert html.units[0].section_path == ("Findings",)
     assert "ignore" not in html.text
+    assert html.parser_version == "2"
     text = router.parse(b"First paragraph.\n\nSecond paragraph.", media_type="text/plain")
     assert len(text.units) == 2
     xml = router.parse(b"<root><p>XML evidence</p></root>", media_type="application/xml")
@@ -101,6 +106,29 @@ def test_parser_routes_html_text_xml_json_and_pdf() -> None:
     )
     assert pdf.quality.page_count == 1
     assert pdf.units[0].locator == "page:1"
+
+
+def test_html_parser_prefers_main_content_and_removes_site_chrome() -> None:
+    """Navigation, breadcrumbs, repeated labels, and short link text cannot become evidence."""
+    html = DocumentParserRouter().parse(
+        b"""<!doctype html><html><body>
+        <header><p>Monetary Policy &amp; Economic Research</p></header>
+        <div class="breadcrumbs"><ol><li>Monetary Policy</li></ol></div>
+        <main><article><h1>Policy transmission</h1>
+        <p>Asset purchases reduced longer-term yields through the portfolio balance channel.</p>
+        <p>Read more</p>
+        <p>Asset purchases reduced longer-term yields through the portfolio balance channel.</p>
+        </article></main>
+        <footer><p>Federal Reserve Bank navigation and legal notices</p></footer>
+        </body></html>""",
+        media_type="text/html",
+    )
+
+    assert [unit.text for unit in html.units] == [
+        "Asset purchases reduced longer-term yields through the portfolio balance channel."
+    ]
+    assert html.units[0].section_path == ("Policy transmission",)
+    assert "boilerplate_removed" in html.quality.warnings
 
 
 @pytest.mark.parametrize(
@@ -232,7 +260,19 @@ def test_corpus_ingestion_is_idempotent_and_preserves_unknown_rights() -> None:
     """Replaying an observation does not duplicate core effects or imply open rights."""
     repository = InMemoryRepository()
     record = _record("one")
-    connector = _Connector(record, (_candidate(record, b"<html><body><h1>Results</h1><p>Evidence.</p></body></html>"),))
+    connector = _Connector(
+        record,
+        (
+            _candidate(
+                record,
+                (
+                    b"<html><body><h1>Results</h1>"
+                    b"<p>The estimated policy response remains statistically significant.</p>"
+                    b"</body></html>"
+                ),
+            ),
+        ),
+    )
     service = _service(repository)
 
     first = service.ingest_page(connector, cursor=None, limit=1)
