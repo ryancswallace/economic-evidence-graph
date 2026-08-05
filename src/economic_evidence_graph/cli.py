@@ -77,19 +77,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         container = create_local_container(settings)
         try:
             if arguments.command == "readiness":
-                repository = container.catalog_repository
-                database_revision = getattr(repository, "current_migration_revision", lambda: None)
-                if container.search_index is None:
-                    raise ConfigurationError("search index is not configured")
-                report = LocalReadinessService(
-                    catalog=repository,
-                    artifacts=container.artifacts,
-                    search_repository=repository,  # type: ignore[arg-type]
-                    search_index=container.search_index,
-                    artifact_root=settings.artifact_root,
-                    minimum_free_space_gib=settings.minimum_free_space_gib,
-                    database_revision=database_revision,
-                ).report()
+                if container.readiness is not None:
+                    report = container.readiness.report()
+                else:
+                    repository = container.catalog_repository
+                    database_revision = getattr(repository, "current_migration_revision", lambda: None)
+                    if container.search_index is None:
+                        raise ConfigurationError("search index is not configured")
+                    report = LocalReadinessService(
+                        catalog=repository,
+                        artifacts=container.artifacts,
+                        search_repository=repository,  # type: ignore[arg-type]
+                        search_index=container.search_index,
+                        artifact_root=settings.artifact_root,
+                        minimum_free_space_gib=settings.minimum_free_space_gib,
+                        database_revision=database_revision,
+                    ).report()
                 print(json.dumps(to_json_value(report), indent=2, sort_keys=True))
                 return 0 if report.ready else 1
             if arguments.command == "promotion-manifest":

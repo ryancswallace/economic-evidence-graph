@@ -7,10 +7,12 @@ from sqlalchemy import create_engine
 
 from economic_evidence_graph.application import (
     AgentToolService,
+    CanonicalWorkProjector,
     CatalogService,
     CorpusIngestionService,
     EvidencePackExporter,
     JobService,
+    LocalReadinessService,
     ProjectService,
     RetrievalService,
     SearchIndexer,
@@ -54,6 +56,7 @@ class Container:
     search_index: SearchIndex | None = None
     projects: ProjectService | None = None
     tools: AgentToolService | None = None
+    readiness: LocalReadinessService | None = None
 
     def close(self) -> None:
         """Release provider resources exactly once per distinct repository."""
@@ -98,7 +101,12 @@ def create_local_container(settings: Settings) -> Container:
     policy = PolicyEngine(registry)
     embeddings = DeterministicEconomicsEmbedding()
     search_index = OpenSearchIndex(settings.opensearch_url, timeout=settings.request_timeout_seconds)
-    exporter = EvidencePackExporter(catalog=repository, artifacts=artifacts, clock=clock)
+    catalog = CatalogService(
+        repository,
+        corpus_repository=repository,
+        projector=CanonicalWorkProjector(registry),
+    )
+    exporter = EvidencePackExporter(catalog=catalog, artifacts=artifacts, clock=clock)
     retrieval = RetrievalService(
         repository=repository,
         index=search_index,
@@ -119,7 +127,7 @@ def create_local_container(settings: Settings) -> Container:
         catalog_repository=repository,
         job_repository=repository,
         artifacts=artifacts,
-        catalog=CatalogService(repository),
+        catalog=catalog,
         jobs=JobService(
             jobs=repository,
             exporter=exporter,
@@ -142,6 +150,15 @@ def create_local_container(settings: Settings) -> Container:
             audit=repository,
             clock=clock,
             ids=ids,
+        ),
+        readiness=LocalReadinessService(
+            catalog=repository,
+            artifacts=artifacts,
+            search_repository=repository,
+            search_index=search_index,
+            artifact_root=settings.artifact_root,
+            minimum_free_space_gib=settings.minimum_free_space_gib,
+            database_revision=repository.current_migration_revision,
         ),
     )
 

@@ -2841,7 +2841,7 @@
     },
     "/health/ready": {
       "get": {
-        "description": "Report readiness after checking canonical storage providers.",
+        "description": "Report readiness only after every configured local acceptance check passes.",
         "operationId": "ready_health_ready_get",
         "responses": {
           "200": {

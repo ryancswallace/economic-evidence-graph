@@ -98,3 +98,9 @@ class SearchBackendError(EconomicEvidenceGraphError):
     """Raised when an index operation fails or returns an invalid response."""
 
     default_code = "search_backend_error"
+
+
+class ReadinessError(EconomicEvidenceGraphError):
+    """Raised when required local runtime acceptance checks do not pass."""
+
+    default_code = "service_not_ready"

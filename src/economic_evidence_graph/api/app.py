@@ -83,6 +83,7 @@ from economic_evidence_graph.exceptions import (
     ConflictError,
     EconomicEvidenceGraphError,
     NotFoundError,
+    ReadinessError,
     SearchBackendError,
 )
 from economic_evidence_graph.ports import ArtifactRef
@@ -181,7 +182,16 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     @app.get("/health/ready", response_model=HealthResponse, tags=["operations"])
     def ready() -> HealthResponse:
-        """Report readiness after checking canonical storage providers."""
+        """Report readiness only after every configured local acceptance check passes."""
+        if dependencies.readiness is not None:
+            report = dependencies.readiness.report()
+            if not report.ready:
+                failed = ",".join(item.name for item in report.checks if item.status.value == "fail")
+                raise ReadinessError(
+                    "service readiness checks failed",
+                    context={"failed_checks": failed},
+                )
+            return HealthResponse()
         dependencies.catalog_repository.check()
         dependencies.artifacts.check()
         if dependencies.search_index is not None:
@@ -741,7 +751,7 @@ def _status_for(error: EconomicEvidenceGraphError) -> int:
         return status.HTTP_409_CONFLICT
     if isinstance(error, AuthorizationError):
         return status.HTTP_403_FORBIDDEN
-    if isinstance(error, SearchBackendError):
+    if isinstance(error, (ReadinessError, SearchBackendError)):
         return status.HTTP_503_SERVICE_UNAVAILABLE
     return status.HTTP_400_BAD_REQUEST
 
