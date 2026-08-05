@@ -65,6 +65,12 @@ def test_local_profile_targets_reference_mac_without_proprietary_runtime() -> No
     assert profile["runtime"]["proprietary_runtime_required"] is False
 
 
+def test_compose_api_healthcheck_uses_authoritative_readiness_endpoint() -> None:
+    """Container health reflects the same migration, index, and capacity gate as the API."""
+    compose = (_ROOT / "compose.yaml").read_text(encoding="utf-8")
+    assert "urllib.request.urlopen('http://127.0.0.1:8000/health/ready'" in compose
+
+
 def test_benchmark_plan_is_balanced_and_has_a_held_out_split() -> None:
     """The pilot benchmark fixes task allocation before retrieval optimization."""
     plan = _json("benchmark-plan.json")
