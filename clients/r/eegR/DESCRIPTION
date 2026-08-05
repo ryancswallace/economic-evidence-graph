@@ -1,0 +1,14 @@
+Package: eegR
+Title: Economic Evidence Graph API Client
+Version: 0.1.0
+Authors@R: person("Ryan", "Wallace", email = "ryancswallace@gmail.com", role = c("aut", "cre"))
+Description: Typed helpers for literature search, project evidence, agent tools,
+    and governed exports from the Economic Evidence Graph API.
+License: file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.2)
+Imports:
+    httr2 (>= 1.2.0)
+Suggests:
+    testthat (>= 3.3.0)
+Config/testthat/edition: 3

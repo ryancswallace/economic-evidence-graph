@@ -1,0 +1,4588 @@
+{
+  "components": {
+    "schemas": {
+      "AgentToolCallResource": {
+        "additionalProperties": false,
+        "description": "Structured result shared by every agent-tool transport.",
+        "properties": {
+          "invocation_id": {
+            "title": "Invocation Id",
+            "type": "string"
+          },
+          "result": {
+            "additionalProperties": true,
+            "title": "Result",
+            "type": "object"
+          },
+          "schema_version": {
+            "const": "eeg.agent-tools.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "tool_name": {
+            "title": "Tool Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "invocation_id",
+          "tool_name",
+          "result"
+        ],
+        "title": "AgentToolCallResource",
+        "type": "object"
+      },
+      "AgentToolDefinitionResource": {
+        "additionalProperties": false,
+        "description": "Machine-readable registration contract for one bounded tool.",
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "input_schema": {
+            "additionalProperties": true,
+            "title": "Input Schema",
+            "type": "object"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "input_schema"
+        ],
+        "title": "AgentToolDefinitionResource",
+        "type": "object"
+      },
+      "ChannelContributionResource": {
+        "additionalProperties": false,
+        "description": "One explainable fusion contribution.",
+        "properties": {
+          "channel": {
+            "title": "Channel",
+            "type": "string"
+          },
+          "contribution": {
+            "title": "Contribution",
+            "type": "number"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "raw_score": {
+            "title": "Raw Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "channel",
+          "rank",
+          "raw_score",
+          "contribution"
+        ],
+        "title": "ChannelContributionResource",
+        "type": "object"
+      },
+      "DocumentVersionResource": {
+        "additionalProperties": false,
+        "description": "Version and historical-eligibility representation.",
+        "properties": {
+          "asserted_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asserted At"
+          },
+          "eligible_from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eligible From"
+          },
+          "first_observed_at": {
+            "format": "date-time",
+            "title": "First Observed At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "raw_asset_id": {
+            "title": "Raw Asset Id",
+            "type": "string"
+          },
+          "temporal_safety_class": {
+            "title": "Temporal Safety Class",
+            "type": "string"
+          },
+          "version_label": {
+            "title": "Version Label",
+            "type": "string"
+          },
+          "work_id": {
+            "title": "Work Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "work_id",
+          "raw_asset_id",
+          "version_label",
+          "asserted_at",
+          "first_observed_at",
+          "eligible_from",
+          "temporal_safety_class"
+        ],
+        "title": "DocumentVersionResource",
+        "type": "object"
+      },
+      "EvidenceAnchorCreateRequest": {
+        "additionalProperties": false,
+        "description": "Quote to resolve against a governed evidence unit.",
+        "properties": {
+          "evidence_unit_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Evidence Unit Id",
+            "type": "string"
+          },
+          "quote": {
+            "maxLength": 600,
+            "minLength": 1,
+            "title": "Quote",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidence_unit_id",
+          "quote"
+        ],
+        "title": "EvidenceAnchorCreateRequest",
+        "type": "object"
+      },
+      "EvidenceAnchorResource": {
+        "additionalProperties": false,
+        "description": "Exact evidence support locator.",
+        "properties": {
+          "evidence_unit_id": {
+            "title": "Evidence Unit Id",
+            "type": "string"
+          },
+          "locator": {
+            "title": "Locator",
+            "type": "string"
+          },
+          "quote": {
+            "title": "Quote",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidence_unit_id",
+          "locator",
+          "quote"
+        ],
+        "title": "EvidenceAnchorResource",
+        "type": "object"
+      },
+      "EvidenceFieldCreateRequest": {
+        "additionalProperties": false,
+        "description": "Typed project evidence proposal.",
+        "properties": {
+          "anchors": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceAnchorCreateRequest"
+            },
+            "maxItems": 10,
+            "title": "Anchors",
+            "type": "array"
+          },
+          "applicability": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Applicability",
+            "type": "string"
+          },
+          "confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "display_value": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Display Value",
+            "type": "string"
+          },
+          "field_name": {
+            "maxLength": 64,
+            "minLength": 2,
+            "pattern": "^[a-z][a-z0-9_]+$",
+            "title": "Field Name",
+            "type": "string"
+          },
+          "lineage_method": {
+            "enum": [
+              "observed_transcription",
+              "deterministic_extraction",
+              "user_authored"
+            ],
+            "title": "Lineage Method",
+            "type": "string"
+          },
+          "missingness_reason": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Missingness Reason"
+          },
+          "normalized_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Value"
+          },
+          "state": {
+            "enum": [
+              "observed",
+              "suggested",
+              "uncertain"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Units"
+          }
+        },
+        "required": [
+          "field_name",
+          "applicability",
+          "state",
+          "lineage_method",
+          "confidence"
+        ],
+        "title": "EvidenceFieldCreateRequest",
+        "type": "object"
+      },
+      "EvidenceFieldResource": {
+        "additionalProperties": false,
+        "description": "Typed, reviewable field revision.",
+        "properties": {
+          "anchors": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceAnchorResource"
+            },
+            "title": "Anchors",
+            "type": "array"
+          },
+          "applicability": {
+            "title": "Applicability",
+            "type": "string"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "display_value": {
+            "title": "Display Value",
+            "type": "string"
+          },
+          "field_name": {
+            "title": "Field Name",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "lineage_method": {
+            "title": "Lineage Method",
+            "type": "string"
+          },
+          "normalized_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Value"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Units"
+          }
+        },
+        "required": [
+          "id",
+          "field_name",
+          "display_value",
+          "normalized_value",
+          "units",
+          "applicability",
+          "state",
+          "lineage_method",
+          "confidence",
+          "anchors"
+        ],
+        "title": "EvidenceFieldResource",
+        "type": "object"
+      },
+      "EvidenceRecordCreateRequest": {
+        "additionalProperties": false,
+        "description": "Create one economics-specific evidence record.",
+        "properties": {
+          "document_version_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Document Version Id",
+            "type": "string"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceFieldCreateRequest"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Fields",
+            "type": "array"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "record_type": {
+            "maxLength": 64,
+            "minLength": 2,
+            "pattern": "^[a-z][a-z0-9_]+$",
+            "title": "Record Type",
+            "type": "string"
+          },
+          "work_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Work Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "work_id",
+          "document_version_id",
+          "record_type",
+          "fields"
+        ],
+        "title": "EvidenceRecordCreateRequest",
+        "type": "object"
+      },
+      "EvidenceRecordResource": {
+        "additionalProperties": false,
+        "description": "Economics-specific evidence record.",
+        "properties": {
+          "document_version_id": {
+            "title": "Document Version Id",
+            "type": "string"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceFieldResource"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "record_type": {
+            "title": "Record Type",
+            "type": "string"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "work_id": {
+            "title": "Work Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "work_id",
+          "document_version_id",
+          "record_type",
+          "schema_version",
+          "fields"
+        ],
+        "title": "EvidenceRecordResource",
+        "type": "object"
+      },
+      "EvidenceSnippetResource": {
+        "additionalProperties": false,
+        "description": "Policy-limited excerpt with exact acquisition and extraction lineage.",
+        "properties": {
+          "access_mode": {
+            "title": "Access Mode",
+            "type": "string"
+          },
+          "acquired_asset_id": {
+            "title": "Acquired Asset Id",
+            "type": "string"
+          },
+          "content_sha256": {
+            "title": "Content Sha256",
+            "type": "string"
+          },
+          "evidence_unit_id": {
+            "title": "Evidence Unit Id",
+            "type": "string"
+          },
+          "extraction_schema_version": {
+            "title": "Extraction Schema Version",
+            "type": "string"
+          },
+          "locator": {
+            "title": "Locator",
+            "type": "string"
+          },
+          "normalized_document_id": {
+            "title": "Normalized Document Id",
+            "type": "string"
+          },
+          "page_end": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page End"
+          },
+          "page_start": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Start"
+          },
+          "parser_name": {
+            "title": "Parser Name",
+            "type": "string"
+          },
+          "parser_version": {
+            "title": "Parser Version",
+            "type": "string"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "section_path": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Section Path",
+            "type": "array"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "text_sha256": {
+            "title": "Text Sha256",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "evidence_unit_id",
+          "normalized_document_id",
+          "acquired_asset_id",
+          "text",
+          "access_mode",
+          "section_path",
+          "locator",
+          "page_start",
+          "page_end",
+          "content_sha256",
+          "text_sha256",
+          "retrieved_at",
+          "parser_name",
+          "parser_version",
+          "extraction_schema_version",
+          "warnings"
+        ],
+        "title": "EvidenceSnippetResource",
+        "type": "object"
+      },
+      "EvidenceTableCellRequest": {
+        "additionalProperties": false,
+        "description": "Reference one field or declare one missingness reason.",
+        "properties": {
+          "column_key": {
+            "maxLength": 64,
+            "minLength": 2,
+            "title": "Column Key",
+            "type": "string"
+          },
+          "evidence_field_id": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Field Id"
+          },
+          "missingness_reason": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Missingness Reason"
+          }
+        },
+        "required": [
+          "column_key"
+        ],
+        "title": "EvidenceTableCellRequest",
+        "type": "object"
+      },
+      "EvidenceTableColumnRequest": {
+        "additionalProperties": false,
+        "description": "One declared comparison column.",
+        "properties": {
+          "key": {
+            "maxLength": 64,
+            "minLength": 2,
+            "pattern": "^[a-z][a-z0-9_]+$",
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Units"
+          },
+          "value_type": {
+            "enum": [
+              "text",
+              "integer",
+              "number",
+              "boolean"
+            ],
+            "title": "Value Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "value_type"
+        ],
+        "title": "EvidenceTableColumnRequest",
+        "type": "object"
+      },
+      "EvidenceTableCreateRequest": {
+        "additionalProperties": false,
+        "description": "Create a declared comparison schema.",
+        "properties": {
+          "columns": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceTableColumnRequest"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Columns",
+            "type": "array"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 4000,
+            "title": "Description",
+            "type": "string"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "name",
+          "columns"
+        ],
+        "title": "EvidenceTableCreateRequest",
+        "type": "object"
+      },
+      "EvidenceTableRowCreateRequest": {
+        "additionalProperties": false,
+        "description": "Add one fully explicit study comparison row.",
+        "properties": {
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceTableCellRequest"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Cells",
+            "type": "array"
+          },
+          "evidence_record_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Evidence Record Id",
+            "type": "string"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "evidence_record_id",
+          "label",
+          "cells"
+        ],
+        "title": "EvidenceTableRowCreateRequest",
+        "type": "object"
+      },
+      "EvidenceUnitResource": {
+        "additionalProperties": false,
+        "description": "Page- and section-anchored evidence passage.",
+        "properties": {
+          "extraction_artifact_id": {
+            "title": "Extraction Artifact Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "ordinal": {
+            "title": "Ordinal",
+            "type": "integer"
+          },
+          "page_end": {
+            "title": "Page End",
+            "type": "integer"
+          },
+          "page_start": {
+            "title": "Page Start",
+            "type": "integer"
+          },
+          "section_path": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Section Path",
+            "type": "array"
+          },
+          "temporal_safety_class": {
+            "title": "Temporal Safety Class",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "extraction_artifact_id",
+          "ordinal",
+          "section_path",
+          "page_start",
+          "page_end",
+          "text",
+          "temporal_safety_class"
+        ],
+        "title": "EvidenceUnitResource",
+        "type": "object"
+      },
+      "ExportCreateRequest": {
+        "additionalProperties": false,
+        "description": "Request body for a reproducible evidence-pack job.",
+        "properties": {
+          "format": {
+            "const": "jsonl",
+            "default": "jsonl",
+            "title": "Format",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Id"
+          },
+          "work_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Work Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "work_ids",
+          "idempotency_key"
+        ],
+        "title": "ExportCreateRequest",
+        "type": "object"
+      },
+      "ExternalIdentifierResource": {
+        "additionalProperties": false,
+        "description": "External identifier exposed with a work.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "scheme": {
+            "title": "Scheme",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "scheme",
+          "value"
+        ],
+        "title": "ExternalIdentifierResource",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "additionalProperties": false,
+        "description": "Liveness or readiness state.",
+        "properties": {
+          "profile": {
+            "const": "local",
+            "default": "local",
+            "title": "Profile",
+            "type": "string"
+          },
+          "status": {
+            "const": "ok",
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "HistoricalCutoffRequest": {
+        "additionalProperties": false,
+        "description": "Strict historical eligibility boundary.",
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "mode": {
+            "const": "strict",
+            "default": "strict",
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "at"
+        ],
+        "title": "HistoricalCutoffRequest",
+        "type": "object"
+      },
+      "JobResource": {
+        "additionalProperties": false,
+        "description": "Durable job state returned by the API.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "input": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Input",
+            "type": "object"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "output": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "state",
+          "idempotency_key",
+          "input",
+          "created_at",
+          "started_at",
+          "finished_at",
+          "output",
+          "error_code",
+          "error_message"
+        ],
+        "title": "JobResource",
+        "type": "object"
+      },
+      "ManifestationResource": {
+        "additionalProperties": false,
+        "description": "Source manifestation representation.",
+        "properties": {
+          "access_status": {
+            "title": "Access Status",
+            "type": "string"
+          },
+          "document_version_id": {
+            "title": "Document Version Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "license_uri": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License Uri"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_identifier": {
+            "title": "Source Identifier",
+            "type": "string"
+          },
+          "source_url": {
+            "title": "Source Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "document_version_id",
+          "source_id",
+          "source_identifier",
+          "source_url",
+          "access_status",
+          "license_uri"
+        ],
+        "title": "ManifestationResource",
+        "type": "object"
+      },
+      "PolicyLinkCreateRequest": {
+        "additionalProperties": false,
+        "description": "Create a semantically typed research-to-policy relationship.",
+        "properties": {
+          "anchor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceAnchorCreateRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "method": {
+            "maxLength": 64,
+            "minLength": 2,
+            "pattern": "^[a-z][a-z0-9_]+$",
+            "title": "Method",
+            "type": "string"
+          },
+          "policy_work_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Policy Work Id",
+            "type": "string"
+          },
+          "relationship_type": {
+            "enum": [
+              "direct_citation",
+              "explicit_mention",
+              "shared_source",
+              "topical_suggestion"
+            ],
+            "title": "Relationship Type",
+            "type": "string"
+          },
+          "research_work_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Research Work Id",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "observed",
+              "suggested",
+              "uncertain"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "research_work_id",
+          "policy_work_id",
+          "relationship_type",
+          "method",
+          "confidence",
+          "state"
+        ],
+        "title": "PolicyLinkCreateRequest",
+        "type": "object"
+      },
+      "ProjectBundleResource": {
+        "additionalProperties": false,
+        "description": "Complete project state with explicit append-only history.",
+        "properties": {
+          "evidence_records": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Evidence Records",
+            "type": "array"
+          },
+          "evidence_table_rows": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Evidence Table Rows",
+            "type": "array"
+          },
+          "evidence_tables": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Evidence Tables",
+            "type": "array"
+          },
+          "exports": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Exports",
+            "type": "array"
+          },
+          "members": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Members",
+            "type": "array"
+          },
+          "notes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "policy_links": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Policy Links",
+            "type": "array"
+          },
+          "project": {
+            "additionalProperties": true,
+            "title": "Project",
+            "type": "object"
+          },
+          "review_events": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Review Events",
+            "type": "array"
+          },
+          "schema_version": {
+            "default": "eeg.api.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "screening_events": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Screening Events",
+            "type": "array"
+          },
+          "search_runs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Search Runs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "project",
+          "members",
+          "search_runs",
+          "screening_events",
+          "notes",
+          "evidence_records",
+          "evidence_tables",
+          "evidence_table_rows",
+          "policy_links",
+          "review_events",
+          "exports"
+        ],
+        "title": "ProjectBundleResource",
+        "type": "object"
+      },
+      "ProjectCreateRequest": {
+        "additionalProperties": false,
+        "description": "Create a collaborative research workspace.",
+        "properties": {
+          "description": {
+            "default": "",
+            "maxLength": 4000,
+            "title": "Description",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "idempotency_key"
+        ],
+        "title": "ProjectCreateRequest",
+        "type": "object"
+      },
+      "ProjectExportCreateRequest": {
+        "additionalProperties": false,
+        "description": "Create a governed, reproducible evidence-table export.",
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "format": {
+            "default": "json",
+            "enum": [
+              "json",
+              "csv",
+              "markdown"
+            ],
+            "title": "Format",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key"
+        ],
+        "title": "ProjectExportCreateRequest",
+        "type": "object"
+      },
+      "ProjectExportResource": {
+        "additionalProperties": false,
+        "description": "Checksum-addressed project export metadata.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "title": "Created By",
+            "type": "string"
+          },
+          "data_byte_length": {
+            "title": "Data Byte Length",
+            "type": "integer"
+          },
+          "data_media_type": {
+            "title": "Data Media Type",
+            "type": "string"
+          },
+          "data_sha256": {
+            "title": "Data Sha256",
+            "type": "string"
+          },
+          "data_uri": {
+            "title": "Data Uri",
+            "type": "string"
+          },
+          "format": {
+            "title": "Format",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "manifest_byte_length": {
+            "title": "Manifest Byte Length",
+            "type": "integer"
+          },
+          "manifest_sha256": {
+            "title": "Manifest Sha256",
+            "type": "string"
+          },
+          "manifest_uri": {
+            "title": "Manifest Uri",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "project_revision": {
+            "title": "Project Revision",
+            "type": "integer"
+          },
+          "table_id": {
+            "title": "Table Id",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "project_id",
+          "table_id",
+          "format",
+          "project_revision",
+          "data_uri",
+          "data_sha256",
+          "data_media_type",
+          "data_byte_length",
+          "manifest_uri",
+          "manifest_sha256",
+          "manifest_byte_length",
+          "warnings",
+          "created_by",
+          "created_at",
+          "idempotency_key"
+        ],
+        "title": "ProjectExportResource",
+        "type": "object"
+      },
+      "ProjectMemberCreateRequest": {
+        "additionalProperties": false,
+        "description": "Add a collaborator role.",
+        "properties": {
+          "actor_id": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "owner",
+              "editor",
+              "reviewer",
+              "viewer"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "actor_id",
+          "role"
+        ],
+        "title": "ProjectMemberCreateRequest",
+        "type": "object"
+      },
+      "ProjectNoteCreateRequest": {
+        "additionalProperties": false,
+        "description": "Append a project-object note.",
+        "properties": {
+          "body": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "target_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Target Id",
+            "type": "string"
+          },
+          "target_type": {
+            "maxLength": 64,
+            "minLength": 2,
+            "pattern": "^[a-z][a-z0-9_]+$",
+            "title": "Target Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "target_type",
+          "target_id",
+          "body"
+        ],
+        "title": "ProjectNoteCreateRequest",
+        "type": "object"
+      },
+      "ProjectResource": {
+        "additionalProperties": false,
+        "description": "Project identity, reproducibility baseline, and optimistic revision.",
+        "properties": {
+          "baseline_corpus_snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Corpus Snapshot Id"
+          },
+          "baseline_index_generation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Index Generation Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "title": "Created By",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "created_by",
+          "created_at",
+          "baseline_corpus_snapshot_id",
+          "baseline_index_generation_id",
+          "idempotency_key",
+          "revision"
+        ],
+        "title": "ProjectResource",
+        "type": "object"
+      },
+      "ProjectSearchRunCreateRequest": {
+        "additionalProperties": false,
+        "description": "Attach an existing immutable search run.",
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "search_run_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Search Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "search_run_id"
+        ],
+        "title": "ProjectSearchRunCreateRequest",
+        "type": "object"
+      },
+      "ProvenanceResource": {
+        "additionalProperties": false,
+        "description": "Lineage identifiers required to reproduce a work response.",
+        "properties": {
+          "extraction_artifact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Extraction Artifact Ids",
+            "type": "array"
+          },
+          "raw_asset_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Raw Asset Ids",
+            "type": "array"
+          },
+          "retrievals": {
+            "items": {
+              "$ref": "#/components/schemas/RetrievalResource"
+            },
+            "title": "Retrievals",
+            "type": "array"
+          },
+          "snapshot_id": {
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "snapshot_manifest_sha256": {
+            "title": "Snapshot Manifest Sha256",
+            "type": "string"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Ids",
+            "type": "array"
+          },
+          "source_policy_version_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Policy Version Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "snapshot_manifest_sha256",
+          "source_ids",
+          "source_policy_version_ids",
+          "retrievals",
+          "raw_asset_ids",
+          "extraction_artifact_ids"
+        ],
+        "title": "ProvenanceResource",
+        "type": "object"
+      },
+      "RetrievalResource": {
+        "additionalProperties": false,
+        "description": "Acquisition provenance exposed to clients.",
+        "properties": {
+          "collector_version": {
+            "title": "Collector Version",
+            "type": "string"
+          },
+          "content_sha256": {
+            "title": "Content Sha256",
+            "type": "string"
+          },
+          "http_status": {
+            "title": "Http Status",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "requested_url": {
+            "title": "Requested Url",
+            "type": "string"
+          },
+          "resolved_url": {
+            "title": "Resolved Url",
+            "type": "string"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_policy_version_id": {
+            "title": "Source Policy Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source_id",
+          "source_policy_version_id",
+          "requested_url",
+          "resolved_url",
+          "retrieved_at",
+          "http_status",
+          "media_type",
+          "content_sha256",
+          "collector_version"
+        ],
+        "title": "RetrievalResource",
+        "type": "object"
+      },
+      "ReviewCreateRequest": {
+        "additionalProperties": false,
+        "description": "Append one independent review transition.",
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "new_state": {
+            "enum": [
+              "approved",
+              "rejected",
+              "uncertain",
+              "superseded"
+            ],
+            "title": "New State",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "target_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Target Id",
+            "type": "string"
+          },
+          "target_type": {
+            "enum": [
+              "evidence_field",
+              "policy_link"
+            ],
+            "title": "Target Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "target_type",
+          "target_id",
+          "new_state",
+          "reason"
+        ],
+        "title": "ReviewCreateRequest",
+        "type": "object"
+      },
+      "ScreeningCreateRequest": {
+        "additionalProperties": false,
+        "description": "Append one controlled screening decision.",
+        "properties": {
+          "document_version_id": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Version Id"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "outcome": {
+            "enum": [
+              "include",
+              "exclude",
+              "maybe"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "work_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Work Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "work_id",
+          "outcome"
+        ],
+        "title": "ScreeningCreateRequest",
+        "type": "object"
+      },
+      "SearchCreateRequest": {
+        "additionalProperties": false,
+        "description": "Hybrid literature-search request.",
+        "properties": {
+          "collapse_versions": {
+            "default": true,
+            "title": "Collapse Versions",
+            "type": "boolean"
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cursor"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/SearchFiltersRequest"
+          },
+          "historical_cutoff": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HistoricalCutoffRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "default": 20,
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "modes": {
+            "items": {
+              "enum": [
+                "lexical",
+                "semantic",
+                "structured"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Modes",
+            "type": "array"
+          },
+          "query": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "save_run": {
+            "default": false,
+            "title": "Save Run",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "SearchCreateRequest",
+        "type": "object"
+      },
+      "SearchFiltersRequest": {
+        "additionalProperties": false,
+        "description": "Typed search selection filters.",
+        "properties": {
+          "published_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published From"
+          },
+          "published_to": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published To"
+          },
+          "source_codes": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Source Codes",
+            "type": "array"
+          }
+        },
+        "title": "SearchFiltersRequest",
+        "type": "object"
+      },
+      "SearchResponseResource": {
+        "additionalProperties": false,
+        "description": "Reproducible hybrid search response.",
+        "properties": {
+          "corpus_snapshot_id": {
+            "title": "Corpus Snapshot Id",
+            "type": "string"
+          },
+          "index_generation_id": {
+            "title": "Index Generation Id",
+            "type": "string"
+          },
+          "modes_used": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Modes Used",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "omitted_channels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Omitted Channels",
+            "type": "array"
+          },
+          "parsed_terms": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Parsed Terms",
+            "type": "array"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/SearchResultResource"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "retrieval_config_id": {
+            "title": "Retrieval Config Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "default": "eeg.api.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "search_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Run Id"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "query",
+          "parsed_terms",
+          "results",
+          "index_generation_id",
+          "corpus_snapshot_id",
+          "retrieval_config_id",
+          "modes_used",
+          "omitted_channels",
+          "warnings",
+          "next_cursor",
+          "search_run_id"
+        ],
+        "title": "SearchResponseResource",
+        "type": "object"
+      },
+      "SearchResultResource": {
+        "additionalProperties": false,
+        "description": "One ranked, version-collapsed literature result.",
+        "properties": {
+          "alternative_version_count": {
+            "title": "Alternative Version Count",
+            "type": "integer"
+          },
+          "authors": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authors",
+            "type": "array"
+          },
+          "contributions": {
+            "items": {
+              "$ref": "#/components/schemas/ChannelContributionResource"
+            },
+            "title": "Contributions",
+            "type": "array"
+          },
+          "document_version_id": {
+            "title": "Document Version Id",
+            "type": "string"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceSnippetResource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "matched_phrases": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Matched Phrases",
+            "type": "array"
+          },
+          "policy_version": {
+            "title": "Policy Version",
+            "type": "integer"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "source_code": {
+            "title": "Source Code",
+            "type": "string"
+          },
+          "source_identifier": {
+            "title": "Source Identifier",
+            "type": "string"
+          },
+          "source_record_id": {
+            "title": "Source Record Id",
+            "type": "string"
+          },
+          "source_url": {
+            "title": "Source Url",
+            "type": "string"
+          },
+          "temporal": {
+            "$ref": "#/components/schemas/TemporalResultResource"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version_selection_reason": {
+            "title": "Version Selection Reason",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          },
+          "work_id": {
+            "title": "Work Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rank",
+          "score",
+          "work_id",
+          "document_version_id",
+          "source_record_id",
+          "title",
+          "authors",
+          "published_at",
+          "source_code",
+          "source_identifier",
+          "source_url",
+          "policy_version",
+          "alternative_version_count",
+          "version_selection_reason",
+          "contributions",
+          "matched_phrases",
+          "evidence",
+          "temporal",
+          "warnings"
+        ],
+        "title": "SearchResultResource",
+        "type": "object"
+      },
+      "SearchRunResource": {
+        "additionalProperties": false,
+        "description": "Saved request and exact response manifest.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "index_generation_id": {
+            "title": "Index Generation Id",
+            "type": "string"
+          },
+          "query_sha256": {
+            "title": "Query Sha256",
+            "type": "string"
+          },
+          "request_payload": {
+            "additionalProperties": true,
+            "title": "Request Payload",
+            "type": "object"
+          },
+          "response_payload": {
+            "additionalProperties": true,
+            "title": "Response Payload",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "request_payload",
+          "response_payload",
+          "index_generation_id",
+          "query_sha256",
+          "created_at"
+        ],
+        "title": "SearchRunResource",
+        "type": "object"
+      },
+      "TemporalResultResource": {
+        "additionalProperties": false,
+        "description": "Historical-eligibility explanation.",
+        "properties": {
+          "cutoff": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cutoff"
+          },
+          "date_basis": {
+            "title": "Date Basis",
+            "type": "string"
+          },
+          "date_evidence": {
+            "title": "Date Evidence",
+            "type": "string"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "eligible_from": {
+            "format": "date-time",
+            "title": "Eligible From",
+            "type": "string"
+          },
+          "safety_class": {
+            "title": "Safety Class",
+            "type": "string"
+          },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uncertainty"
+          }
+        },
+        "required": [
+          "cutoff",
+          "eligible",
+          "eligible_from",
+          "date_basis",
+          "date_evidence",
+          "uncertainty",
+          "safety_class"
+        ],
+        "title": "TemporalResultResource",
+        "type": "object"
+      },
+      "ToolCompareEvidenceRequest": {
+        "additionalProperties": false,
+        "description": "Authorized evidence-table preview arguments.",
+        "properties": {
+          "project_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Project Id",
+            "type": "string"
+          },
+          "table_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Table Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id",
+          "table_id"
+        ],
+        "title": "ToolCompareEvidenceRequest",
+        "type": "object"
+      },
+      "ToolCompareVersionsRequest": {
+        "additionalProperties": false,
+        "description": "Bounded deterministic version-comparison arguments.",
+        "properties": {
+          "include_unchanged": {
+            "default": false,
+            "title": "Include Unchanged",
+            "type": "boolean"
+          },
+          "left_document_version_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Left Document Version Id",
+            "type": "string"
+          },
+          "limit": {
+            "default": 50,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "right_document_version_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Right Document Version Id",
+            "type": "string"
+          },
+          "work_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Work Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "work_id",
+          "left_document_version_id",
+          "right_document_version_id"
+        ],
+        "title": "ToolCompareVersionsRequest",
+        "type": "object"
+      },
+      "ToolExportProjectRequest": {
+        "additionalProperties": false,
+        "description": "Authorized governed-export arguments.",
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "format": {
+            "default": "json",
+            "enum": [
+              "json",
+              "csv",
+              "markdown"
+            ],
+            "title": "Format",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "project_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Project Id",
+            "type": "string"
+          },
+          "table_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Table Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id",
+          "table_id",
+          "expected_revision",
+          "idempotency_key"
+        ],
+        "title": "ToolExportProjectRequest",
+        "type": "object"
+      },
+      "ToolGetWorkRequest": {
+        "additionalProperties": false,
+        "description": "Exact canonical-work lookup arguments.",
+        "properties": {
+          "work_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Work Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "work_id"
+        ],
+        "title": "ToolGetWorkRequest",
+        "type": "object"
+      },
+      "ToolRetrieveEvidenceRequest": {
+        "additionalProperties": false,
+        "description": "Exact evidence-unit lookup arguments.",
+        "properties": {
+          "evidence_unit_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Evidence Unit Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidence_unit_id"
+        ],
+        "title": "ToolRetrieveEvidenceRequest",
+        "type": "object"
+      },
+      "ToolSearchLiteratureRequest": {
+        "additionalProperties": false,
+        "description": "Bounded hybrid-retrieval arguments for agents.",
+        "properties": {
+          "collapse_versions": {
+            "default": true,
+            "title": "Collapse Versions",
+            "type": "boolean"
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cursor"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/SearchFiltersRequest"
+          },
+          "historical_cutoff": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HistoricalCutoffRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "default": 10,
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "modes": {
+            "items": {
+              "enum": [
+                "lexical",
+                "semantic",
+                "structured"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Modes",
+            "type": "array"
+          },
+          "query": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "save_run": {
+            "default": false,
+            "title": "Save Run",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "ToolSearchLiteratureRequest",
+        "type": "object"
+      },
+      "ToolTraceRequest": {
+        "additionalProperties": false,
+        "description": "Bounded project relationship traversal arguments.",
+        "properties": {
+          "depth": {
+            "default": 1,
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Depth",
+            "type": "integer"
+          },
+          "edge_limit": {
+            "default": 100,
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Edge Limit",
+            "type": "integer"
+          },
+          "node_limit": {
+            "default": 50,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Node Limit",
+            "type": "integer"
+          },
+          "project_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Project Id",
+            "type": "string"
+          },
+          "work_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Work Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id",
+          "work_id"
+        ],
+        "title": "ToolTraceRequest",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "WorkResource": {
+        "additionalProperties": false,
+        "description": "Canonical work representation.",
+        "properties": {
+          "authors": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authors",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "identifiers": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalIdentifierResource"
+            },
+            "title": "Identifiers",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "work_type": {
+            "title": "Work Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "work_type",
+          "authors",
+          "identifiers"
+        ],
+        "title": "WorkResource",
+        "type": "object"
+      },
+      "WorkResponse": {
+        "additionalProperties": false,
+        "description": "Provenance-complete work API response.",
+        "properties": {
+          "document_versions": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentVersionResource"
+            },
+            "title": "Document Versions",
+            "type": "array"
+          },
+          "evidence_records": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRecordResource"
+            },
+            "title": "Evidence Records",
+            "type": "array"
+          },
+          "evidence_units": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceUnitResource"
+            },
+            "title": "Evidence Units",
+            "type": "array"
+          },
+          "manifestations": {
+            "items": {
+              "$ref": "#/components/schemas/ManifestationResource"
+            },
+            "title": "Manifestations",
+            "type": "array"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/ProvenanceResource"
+          },
+          "schema_version": {
+            "default": "eeg.api.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "work": {
+            "$ref": "#/components/schemas/WorkResource"
+          }
+        },
+        "required": [
+          "work",
+          "document_versions",
+          "manifestations",
+          "evidence_units",
+          "evidence_records",
+          "provenance"
+        ],
+        "title": "WorkResponse",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "summary": "Versioned, auditable economic evidence infrastructure",
+    "title": "Economic Evidence Graph API",
+    "version": "1.0.0-alpha.1"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/health/live": {
+      "get": {
+        "description": "Report process liveness without touching dependencies.",
+        "operationId": "live_health_live_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Live",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "description": "Report readiness after checking canonical storage providers.",
+        "operationId": "ready_health_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ready",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/v1/agent-tools": {
+      "get": {
+        "description": "Publish the exact bounded input schemas accepted by research agents.",
+        "operationId": "agent_tool_definitions_v1_agent_tools_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AgentToolDefinitionResource"
+                  },
+                  "title": "Response Agent Tool Definitions V1 Agent Tools Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Agent Tool Definitions",
+        "tags": [
+          "agent-tools"
+        ]
+      }
+    },
+    "/v1/agent-tools/compare_evidence": {
+      "post": {
+        "description": "Return an authorized evidence table with current delivery checks.",
+        "operationId": "tool_compare_evidence_v1_agent_tools_compare_evidence_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolCompareEvidenceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentToolCallResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tool Compare Evidence",
+        "tags": [
+          "agent-tools"
+        ]
+      }
+    },
+    "/v1/agent-tools/compare_versions": {
+      "post": {
+        "description": "Compare bounded version evidence without inferring substantive change.",
+        "operationId": "tool_compare_versions_v1_agent_tools_compare_versions_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolCompareVersionsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentToolCallResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tool Compare Versions",
+        "tags": [
+          "agent-tools"
+        ]
+      }
+    },
+    "/v1/agent-tools/export_project": {
+      "post": {
+        "description": "Create a governed project export without returning unbounded artifact data.",
+        "operationId": "tool_export_project_v1_agent_tools_export_project_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolExportProjectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentToolCallResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tool Export Project",
+        "tags": [
+          "agent-tools"
+        ]
+      }
+    },
+    "/v1/agent-tools/get_work": {
+      "post": {
+        "description": "Get one exact work from the active search generation.",
+        "operationId": "tool_get_work_v1_agent_tools_get_work_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolGetWorkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentToolCallResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tool Get Work",
+        "tags": [
+          "agent-tools"
+        ]
+      }
+    },
+    "/v1/agent-tools/retrieve_evidence": {
+      "post": {
+        "description": "Retrieve one policy-gated excerpt without invoking generation.",
+        "operationId": "tool_retrieve_evidence_v1_agent_tools_retrieve_evidence_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolRetrieveEvidenceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentToolCallResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tool Retrieve Evidence",
+        "tags": [
+          "agent-tools"
+        ]
+      }
+    },
+    "/v1/agent-tools/search_literature": {
+      "post": {
+        "description": "Run bounded, provenance-complete hybrid retrieval as a typed tool.",
+        "operationId": "tool_search_literature_v1_agent_tools_search_literature_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolSearchLiteratureRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentToolCallResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tool Search Literature",
+        "tags": [
+          "agent-tools"
+        ]
+      }
+    },
+    "/v1/agent-tools/trace_citations": {
+      "post": {
+        "description": "Trace direct citations under project authorization and hard bounds.",
+        "operationId": "tool_trace_citations_v1_agent_tools_trace_citations_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolTraceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentToolCallResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tool Trace Citations",
+        "tags": [
+          "agent-tools"
+        ]
+      }
+    },
+    "/v1/agent-tools/trace_policy_links": {
+      "post": {
+        "description": "Trace typed policy links under project authorization and hard bounds.",
+        "operationId": "tool_trace_policy_links_v1_agent_tools_trace_policy_links_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolTraceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentToolCallResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tool Trace Policy Links",
+        "tags": [
+          "agent-tools"
+        ]
+      }
+    },
+    "/v1/evidence/{evidence_unit_id}": {
+      "get": {
+        "description": "Return one current, policy-gated evidence excerpt and its lineage.",
+        "operationId": "get_evidence_v1_evidence__evidence_unit_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "evidence_unit_id",
+            "required": true,
+            "schema": {
+              "title": "Evidence Unit Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceSnippetResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Evidence",
+        "tags": [
+          "evidence"
+        ]
+      }
+    },
+    "/v1/exports": {
+      "post": {
+        "description": "Create an idempotent evidence-pack export job.",
+        "operationId": "create_export_v1_exports_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Export",
+        "tags": [
+          "exports"
+        ]
+      }
+    },
+    "/v1/exports/{job_id}/manifest": {
+      "get": {
+        "description": "Return a completed export manifest after job authorization.",
+        "operationId": "get_export_manifest_v1_exports__job_id__manifest_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Export Manifest",
+        "tags": [
+          "exports"
+        ]
+      }
+    },
+    "/v1/jobs/{job_id}": {
+      "get": {
+        "description": "Return durable job state.",
+        "operationId": "get_job_v1_jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Job",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/v1/project-exports/{export_id}/{artifact_kind}": {
+      "get": {
+        "description": "Download an authorized project data file or reproducibility manifest.",
+        "operationId": "get_project_export_artifact_v1_project_exports__export_id___artifact_kind__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "export_id",
+            "required": true,
+            "schema": {
+              "title": "Export Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "artifact_kind",
+            "required": true,
+            "schema": {
+              "title": "Artifact Kind",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Project Export Artifact",
+        "tags": [
+          "exports"
+        ]
+      }
+    },
+    "/v1/projects": {
+      "get": {
+        "description": "List projects visible through explicit membership.",
+        "operationId": "list_projects_v1_projects_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectResource"
+                  },
+                  "title": "Response List Projects V1 Projects Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Projects",
+        "tags": [
+          "projects"
+        ]
+      },
+      "post": {
+        "description": "Create an attributed local research project.",
+        "operationId": "create_project_v1_projects_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Project",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}": {
+      "get": {
+        "description": "Return a complete, authorized project handoff.",
+        "operationId": "get_project_v1_projects__project_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectBundleResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Project",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/evidence-records": {
+      "post": {
+        "description": "Create a typed evidence record after validating every source quote.",
+        "operationId": "add_project_evidence_record_v1_projects__project_id__evidence_records_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceRecordCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add Project Evidence Record",
+        "tags": [
+          "evidence"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/evidence-tables": {
+      "post": {
+        "description": "Create a declared evidence-comparison schema.",
+        "operationId": "create_evidence_table_v1_projects__project_id__evidence_tables_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceTableCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Evidence Table",
+        "tags": [
+          "evidence"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/evidence-tables/{table_id}/exports": {
+      "post": {
+        "description": "Create a governed open-format table export and manifest.",
+        "operationId": "export_evidence_table_v1_projects__project_id__evidence_tables__table_id__exports_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "table_id",
+            "required": true,
+            "schema": {
+              "title": "Table Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectExportCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectExportResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Evidence Table",
+        "tags": [
+          "exports"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/evidence-tables/{table_id}/rows": {
+      "post": {
+        "description": "Add a comparison row with explicit values or missingness.",
+        "operationId": "add_evidence_table_row_v1_projects__project_id__evidence_tables__table_id__rows_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "table_id",
+            "required": true,
+            "schema": {
+              "title": "Table Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceTableRowCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add Evidence Table Row",
+        "tags": [
+          "evidence"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/members": {
+      "post": {
+        "description": "Add a project collaborator as an owner.",
+        "operationId": "add_project_member_v1_projects__project_id__members_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectMemberCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add Project Member",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/notes": {
+      "post": {
+        "description": "Append an attributed project note.",
+        "operationId": "add_project_note_v1_projects__project_id__notes_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectNoteCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add Project Note",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/policy-links": {
+      "post": {
+        "description": "Create a typed research-to-policy relationship.",
+        "operationId": "add_policy_link_v1_projects__project_id__policy_links_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyLinkCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add Policy Link",
+        "tags": [
+          "evidence"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/policy-links/{work_id}": {
+      "get": {
+        "description": "Trace bounded typed policy adjacency without implying influence.",
+        "operationId": "trace_policy_links_v1_projects__project_id__policy_links__work_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "work_id",
+            "required": true,
+            "schema": {
+              "title": "Work Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {},
+                  "title": "Response Trace Policy Links V1 Projects  Project Id  Policy Links  Work Id  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Trace Policy Links",
+        "tags": [
+          "evidence"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/reviews": {
+      "post": {
+        "description": "Append an owner/reviewer decision.",
+        "operationId": "review_project_evidence_v1_projects__project_id__reviews_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review Project Evidence",
+        "tags": [
+          "evidence"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/screening": {
+      "post": {
+        "description": "Append a screening decision without erasing prior history.",
+        "operationId": "screen_project_work_v1_projects__project_id__screening_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScreeningCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Screen Project Work",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/v1/projects/{project_id}/search-runs": {
+      "post": {
+        "description": "Attach an exact saved search manifest.",
+        "operationId": "attach_project_search_run_v1_projects__project_id__search_runs_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-EEG-Actor",
+            "required": false,
+            "schema": {
+              "default": "local-user",
+              "title": "X-Eeg-Actor",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectSearchRunCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Attach Project Search Run",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/v1/search": {
+      "post": {
+        "description": "Run strict, explainable hybrid retrieval over the active generation.",
+        "operationId": "search_v1_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponseResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search",
+        "tags": [
+          "search"
+        ]
+      }
+    },
+    "/v1/search/runs/{run_id}": {
+      "get": {
+        "description": "Return a saved request and exact response manifest.",
+        "operationId": "get_search_run_v1_search_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchRunResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Search Run",
+        "tags": [
+          "search"
+        ]
+      }
+    },
+    "/v1/search/runs/{run_id}/replay": {
+      "post": {
+        "description": "Replay a saved result exactly without silently using a newer generation.",
+        "operationId": "replay_search_run_v1_search_runs__run_id__replay_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponseResource"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Replay Search Run",
+        "tags": [
+          "search"
+        ]
+      }
+    },
+    "/v1/works/{work_id}": {
+      "get": {
+        "description": "Return a provenance-complete canonical work.",
+        "operationId": "get_work_v1_works__work_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "work_id",
+            "required": true,
+            "schema": {
+              "title": "Work Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Work",
+        "tags": [
+          "works"
+        ]
+      }
+    }
+  }
+}
