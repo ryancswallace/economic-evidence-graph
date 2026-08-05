@@ -1,5 +1,6 @@
 """Application services orchestrating domain objects through provider ports."""
 
+from economic_evidence_graph.application.canonicalization import CanonicalWorkProjector
 from economic_evidence_graph.application.catalog import CatalogService
 from economic_evidence_graph.application.corpus import CorpusIngestionService, IngestionSummary
 from economic_evidence_graph.application.exports import EvidencePackExporter, ExportRequest, ExportResult
@@ -23,6 +24,7 @@ from economic_evidence_graph.application.tools import AgentToolService, ToolCall
 
 __all__ = [
     "AgentToolService",
+    "CanonicalWorkProjector",
     "CatalogService",
     "CorpusIngestionService",
     "EvidenceAnchorInput",

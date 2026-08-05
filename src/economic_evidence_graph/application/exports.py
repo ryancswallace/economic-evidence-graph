@@ -1,13 +1,22 @@
 """Reproducible evidence-pack export service."""
 
 from dataclasses import dataclass
+from typing import Protocol
 
 from economic_evidence_graph.domain import EvidenceBundle, stable_id
 from economic_evidence_graph.exceptions import ConflictError, EconomicEvidenceGraphError
-from economic_evidence_graph.ports import ArtifactRef, ArtifactStore, CatalogRepository, Clock
+from economic_evidence_graph.ports import ArtifactRef, ArtifactStore, Clock
 from economic_evidence_graph.serialization import JsonValue, canonical_json_bytes, record_sha256, to_json_value
 
 EXPORT_SCHEMA_VERSION = "eeg.export-manifest.v1"
+
+
+class BundleReader(Protocol):
+    """Read canonical bundles from storage or deterministic corpus projection."""
+
+    def get_bundle(self, work_id: str) -> EvidenceBundle:
+        """Return one provenance-complete work bundle."""
+        ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,7 +52,7 @@ class EvidencePackExporter:
     def __init__(
         self,
         *,
-        catalog: CatalogRepository,
+        catalog: BundleReader,
         artifacts: ArtifactStore,
         clock: Clock,
     ) -> None:

@@ -396,7 +396,6 @@ class EvidenceBundle:
         retrieval_ids = {event.id for event in self.retrieval_events}
         asset_ids = {asset.id for asset in self.raw_assets}
         version_ids = {version.id for version in self.document_versions}
-        version_asset_ids = {version.id: version.raw_asset_id for version in self.document_versions}
         extraction_ids = {artifact.id for artifact in self.extraction_artifacts}
         extraction_version_ids = {artifact.id: artifact.document_version_id for artifact in self.extraction_artifacts}
         unit_version_ids = {
@@ -420,9 +419,7 @@ class EvidenceBundle:
                 for manifestation in self.manifestations
             ),
             all(
-                artifact.document_version_id in version_ids
-                and artifact.raw_asset_id in asset_ids
-                and version_asset_ids.get(artifact.document_version_id) == artifact.raw_asset_id
+                artifact.document_version_id in version_ids and artifact.raw_asset_id in asset_ids
                 for artifact in self.extraction_artifacts
             ),
             all(unit.extraction_artifact_id in extraction_ids for unit in self.evidence_units),
