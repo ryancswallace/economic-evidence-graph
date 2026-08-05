@@ -2,7 +2,9 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-from economic_evidence_graph._core import greet
+from economic_evidence_graph.api import create_app
+from economic_evidence_graph.client import EegClient, EegClientError
+from economic_evidence_graph.config import Settings
 from economic_evidence_graph.exceptions import EconomicEvidenceGraphError
 
 try:
@@ -12,6 +14,9 @@ except PackageNotFoundError:  # pragma: no cover - source tree fallback before i
 
 __all__ = [
     "EconomicEvidenceGraphError",
+    "EegClient",
+    "EegClientError",
+    "Settings",
     "__version__",
-    "greet",
+    "create_app",
 ]
