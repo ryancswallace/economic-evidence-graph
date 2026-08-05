@@ -15,24 +15,35 @@ A versioned, auditable evidence layer for economic research and policy synthesis
 
 ## Quick Start
 
-Install the package:
+Install the locked development environment:
 
 ```bash
-uv add economic-evidence-graph
+make install
 ```
 
-Use it from Python:
-
-```python
-from economic_evidence_graph import greet
-
-print(greet("Python"))
-```
-
-For local development from this repository:
+Start Colima's open-source runtime, then run the complete local platform and
+deterministic acceptance slice:
 
 ```bash
-make ready
+export EEG_POSTGRES_PASSWORD='replace-with-a-local-password' # pragma: allowlist secret
+colima start --cpu 8 --memory 24 --disk 200
+make local-up
+make local-smoke
+uv run eeg rebuild-search
+uv run eeg search "monetary policy inflation"
+uv run eeg readiness
+curl --fail http://127.0.0.1:8000/health/ready
+```
+
+The local runtime uses only open-source components and does not require a cloud
+account or proprietary model API. See the
+[local platform guide](docs/how-to/local-development.md) for prerequisites,
+host-mode development, and safe shutdown.
+
+Run all repository checks before sharing a change:
+
+```bash
+make check
 ```
 
 ## Documentation
@@ -42,6 +53,13 @@ strict mode and generates API reference pages from package docstrings.
 
 | Start here | Use it for |
 | --- | --- |
+| [Local platform](docs/how-to/local-development.md) | Run PostgreSQL, OpenSearch, the API, and the acceptance slice. |
+| [Step 1 foundation](docs/explanation/step-1-foundation.md) | Resolved pilot decisions, contracts, and implementation boundary. |
+| [Step 2 corpus foundation](docs/explanation/step-2-corpus-foundation.md) | Governed connectors, parsing, quarantine, identity, and operator workflow. |
+| [Step 3 search foundation](docs/explanation/step-3-search-foundation.md) | Hybrid retrieval, strict historical cutoffs, version collapse, provenance, and the local workbench. |
+| [Step 4 projects and evidence](docs/explanation/step-4-projects-and-evidence.md) | Collaborative screening, anchored comparison tables, review, policy links, and reproducible exports. |
+| [Step 5 clients and readiness](docs/explanation/step-5-clients-and-readiness.md) | Python/R clients, eight agent tools, audit, readiness, promotion, and deferred production controls. |
+| [Client and agent-tool guide](docs/how-to/clients-and-agent-tools.md) | Use the versioned API from Python, R, or an approved tool consumer. |
 | [Development](docs/project/development.md) | Local setup, test commands, and repository layout. |
 | [Tooling](docs/explanation/tooling.md) | The validation, release, and automation stack. |
 | [API reference](docs/reference/index.md) | Generated package API pages. |

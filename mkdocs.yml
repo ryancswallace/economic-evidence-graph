@@ -91,16 +91,35 @@ nav:
   - Home: index.md
   - How-to guides:
       - How-to guides overview: how-to/index.md
+      - Run locally: how-to/local-development.md
+      - Clients and agent tools: how-to/clients-and-agent-tools.md
   - Reference:
       - Reference overview: reference/index.md
+      - Configuration: reference/configuration.md
+      - Client and agent-tool contracts: reference/clients-and-agent-tools.md
       - API:
           - Package: reference/api/index.md
+          - Bootstrap: reference/api/bootstrap.md
+          - CLI: reference/api/cli.md
+          - Client: reference/api/client.md
+          - Configuration module: reference/api/config.md
           - Exceptions: reference/api/exceptions.md
+          - Parsers: reference/api/parsers.md
+          - Policy: reference/api/policy.md
+          - Serialization: reference/api/serialization.md
   - Explanation:
       - Explanation overview: explanation/index.md
+      - Technical design: explanation/technical-design.md
+      - Step 1 foundation: explanation/step-1-foundation.md
+      - Step 2 corpus foundation: explanation/step-2-corpus-foundation.md
+      - Step 3 search and historical pilot: explanation/step-3-search-foundation.md
+      - Step 4 projects and evidence: explanation/step-4-projects-and-evidence.md
+      - Step 5 clients and readiness: explanation/step-5-clients-and-readiness.md
       - Tooling: explanation/tooling.md
   - Maintainer runbooks:
       - Maintainer runbooks overview: runbooks/index.md
+      - Database migrations: runbooks/database-migrations.md
+      - Local operations and pilot acceptance: runbooks/local-operations.md
       - Release: runbooks/release.md
   - Project:
       - Development: project/development.md
