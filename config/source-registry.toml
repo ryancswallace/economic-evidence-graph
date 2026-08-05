@@ -1,0 +1,157 @@
+# cspell:words ReDIF FOMC fomccalendars
+schema_version = "eeg.source-registry.v2"
+default_action = "deny"
+
+# This registry approves a bounded internal research pilot. Unknown rights do not
+# block internal retrieval, storage, extraction, or embedding. They always block
+# full-text display, export, and redistribution.
+
+[[sources]]
+code = "repec"
+display_name = "Research Papers in Economics"
+connector = "repec_metadata"
+policy_version = 1
+enabled = true
+review_status = "approved_internal_pilot"
+hosts = ["ideas.repec.org", "repec.org", "www.repec.org", "rsync.repec.org"]
+path_prefixes = ["/"]
+allow_external_content_hosts = true
+requests_per_minute = 30
+concurrency = 1
+maximum_response_bytes = 52428800
+scope = "Metadata augmentation for macroeconomics, monetary policy, and FRS seed records"
+discovery_method = "Official RePEc-ReDIF rsync archive; linked content is separately evaluated"
+
+[sources.actions]
+discover_metadata = "allow_internal"
+store_metadata = "allow_internal"
+fetch_content = "allow_internal"
+store_raw = "allow_internal"
+extract_text = "allow_internal"
+embed_content = "allow_internal"
+display_snippet = "allow_if_attributed"
+display_full_text = "deny"
+export_metadata = "allow"
+export_excerpt = "allow_if_attributed"
+export_full_text = "deny"
+redistribute = "deny"
+
+[[sources]]
+code = "crossref"
+display_name = "Crossref"
+connector = "crossref_metadata"
+policy_version = 1
+enabled = true
+review_status = "approved_internal_pilot"
+hosts = ["api.crossref.org"]
+path_prefixes = ["/works"]
+allow_external_content_hosts = true
+requests_per_minute = 30
+concurrency = 1
+maximum_response_bytes = 52428800
+scope = "2010-present metadata augmentation around the Fed seed corpus"
+discovery_method = "Crossref REST API cursor queries using the polite pool"
+
+[sources.actions]
+discover_metadata = "allow_internal"
+store_metadata = "allow_internal"
+fetch_content = "allow_internal"
+store_raw = "allow_internal"
+extract_text = "allow_internal"
+embed_content = "allow_internal"
+display_snippet = "allow_if_attributed"
+display_full_text = "deny"
+export_metadata = "allow"
+export_excerpt = "allow_if_attributed"
+export_full_text = "deny"
+redistribute = "deny"
+
+[[sources]]
+code = "core"
+display_name = "CORE"
+connector = "core_api"
+policy_version = 1
+enabled = true
+review_status = "approved_internal_pilot"
+hosts = ["api.core.ac.uk"]
+path_prefixes = ["/v3/"]
+allow_external_content_hosts = true
+requests_per_minute = 12
+concurrency = 1
+maximum_response_bytes = 52428800
+scope = "2010-present full-text and metadata augmentation around the Fed seed corpus"
+discovery_method = "Authenticated CORE API v3 work search"
+
+[sources.actions]
+discover_metadata = "allow_internal"
+store_metadata = "allow_internal"
+fetch_content = "allow_internal"
+store_raw = "allow_internal"
+extract_text = "allow_internal"
+embed_content = "allow_internal"
+display_snippet = "allow_if_attributed"
+display_full_text = "deny"
+export_metadata = "allow"
+export_excerpt = "allow_if_attributed"
+export_full_text = "deny"
+redistribute = "deny"
+
+[[sources]]
+code = "boston_fed"
+display_name = "Federal Reserve Bank of Boston Research"
+connector = "boston_fed"
+policy_version = 1
+enabled = true
+review_status = "approved_internal_pilot"
+hosts = ["bostonfed.org", "www.bostonfed.org"]
+path_prefixes = ["/publications/", "/news-and-events/", "/sitemap"]
+allow_external_content_hosts = false
+requests_per_minute = 30
+concurrency = 1
+maximum_response_bytes = 52428800
+scope = "Research and policy publications dated 2010-present"
+discovery_method = "First-party sitemap and publication pages"
+
+[sources.actions]
+discover_metadata = "allow_internal"
+store_metadata = "allow_internal"
+fetch_content = "allow_internal"
+store_raw = "allow_internal"
+extract_text = "allow_internal"
+embed_content = "allow_internal"
+display_snippet = "allow_if_attributed"
+display_full_text = "deny"
+export_metadata = "allow"
+export_excerpt = "allow_if_attributed"
+export_full_text = "deny"
+redistribute = "deny"
+
+[[sources]]
+code = "board_fomc"
+display_name = "Federal Reserve Board and FOMC"
+connector = "board_fomc"
+policy_version = 1
+enabled = true
+review_status = "approved_internal_pilot"
+hosts = ["federalreserve.gov", "www.federalreserve.gov"]
+path_prefixes = ["/econres/", "/feeds/", "/monetarypolicy/", "/newsevents/pressreleases/"]
+allow_external_content_hosts = false
+requests_per_minute = 30
+concurrency = 1
+maximum_response_bytes = 52428800
+scope = "FEDS and IFDP 2010-present; FOMC statements, minutes, and SEP 2000-present"
+discovery_method = "First-party RSS, research indexes, FOMC calendars, and historical pages"
+
+[sources.actions]
+discover_metadata = "allow_internal"
+store_metadata = "allow_internal"
+fetch_content = "allow_internal"
+store_raw = "allow_internal"
+extract_text = "allow_internal"
+embed_content = "allow_internal"
+display_snippet = "allow_if_attributed"
+display_full_text = "deny"
+export_metadata = "allow"
+export_excerpt = "allow_if_attributed"
+export_full_text = "deny"
+redistribute = "deny"

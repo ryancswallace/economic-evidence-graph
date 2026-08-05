@@ -1,0 +1,35 @@
+# cspell:words gib opensearch
+schema_version = "eeg.local-resource-profile.v1"
+profile = "local"
+reference_host = "Apple Silicon MacBook Pro, 48 GiB unified memory"
+
+[memory]
+system_reserve_gib = 8
+opensearch_heap_gib = 2
+maximum_pipeline_working_set_gib = 24
+maximum_local_model_working_set_gib = 24
+
+[concurrency]
+heavy_pipeline_jobs = 1
+interactive_api_workers = 1
+source_requests_per_host = 1
+
+[acceptance]
+document_versions = 1000
+evidence_units = 50000
+
+[conditional_pilot_ceiling]
+document_versions = 10000
+evidence_units = 500000
+requires_capacity_acceptance = true
+
+[storage]
+artifact_root_environment_variable = "EEG_ARTIFACT_ROOT"
+minimum_free_space_gib = 20
+pilot_maximum_source_bytes = 10737418240
+
+[runtime]
+database = "PostgreSQL"
+search = "OpenSearch"
+container_engine = "Colima with Docker-compatible CLI; Podman is supported by explicit override"
+proprietary_runtime_required = false

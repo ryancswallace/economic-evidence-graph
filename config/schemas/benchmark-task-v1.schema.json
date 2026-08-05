@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:eeg:schema:benchmark-task:v1",
+  "title": "Economic Evidence Graph benchmark task",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "stratum",
+    "topic",
+    "question",
+    "relevant_work_ids",
+    "evidence_unit_ids",
+    "hard_negative_ids",
+    "cutoff_decisions",
+    "relationship_types",
+    "valid_abstention_behavior",
+    "adjudication_status"
+  ],
+  "properties": {
+    "id": {"type": "string", "pattern": "^bmk_[a-z0-9_]+$"},
+    "stratum": {
+      "enum": [
+        "general_literature_review",
+        "compare_economic_estimates",
+        "historical_reconstruction",
+        "trace_research_into_policy",
+        "research_assistant_review",
+        "agent_retrieval"
+      ]
+    },
+    "topic": {"type": "string", "minLength": 1},
+    "question": {"type": "string", "minLength": 1},
+    "cutoff_at": {"type": ["string", "null"], "format": "date-time"},
+    "relevant_work_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "evidence_unit_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "hard_negative_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "duplicate_and_version_cases": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "cutoff_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["item_id", "decision", "basis"],
+        "properties": {
+          "item_id": {"type": "string"},
+          "decision": {"enum": ["eligible", "ineligible", "uncertain"]},
+          "basis": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "relationship_types": {
+      "type": "array",
+      "items": {"enum": ["direct_citation", "explicit_mention", "shared_source", "topical_candidate"]},
+      "uniqueItems": true
+    },
+    "valid_abstention_behavior": {"type": "string", "minLength": 1},
+    "adjudication_status": {"enum": ["draft", "double_labeled", "adjudicated", "held_out"]},
+    "annotator_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "dissent": {"type": "array", "items": {"type": "string"}}
+  }
+}

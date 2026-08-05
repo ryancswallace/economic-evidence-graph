@@ -1,0 +1,57 @@
+# cspell:words ReDIF FOMC fomccalendars
+schema_version = "eeg.source-cards.v1"
+reviewed_at = "2026-08-04"
+
+[[cards]]
+source_code = "repec"
+scope = "Selected Fed in Print series used to augment the Federal Reserve seed corpus"
+entry_points = [
+  "rsync.repec.org::RePEc-ReDIF/fip/fedbwp/items.redif",
+  "rsync.repec.org::RePEc-ReDIF/fip/fedgfe/items.redif",
+  "rsync.repec.org::RePEc-ReDIF/fip/fedgif/items.redif",
+]
+access_method = "Public rsync ReDIF mirror"
+authentication = "none"
+robots_applicability = "not_applicable_to_rsync"
+known_limitations = ["Publisher metadata may lag", "Linked content is governed per resolved host"]
+
+[[cards]]
+source_code = "crossref"
+scope = "2010-present bibliographic augmentation for macroeconomics, monetary policy, and FRS seeds"
+entry_points = ["https://api.crossref.org/works"]
+access_method = "REST polite pool with crawler contact email"
+authentication = "none"
+robots_applicability = "enforced"
+known_limitations = ["Metadata completeness varies by member", "Linked content does not imply reuse rights"]
+
+[[cards]]
+source_code = "core"
+scope = "2010-present metadata and available full text around the Federal Reserve seed corpus"
+entry_points = ["https://api.core.ac.uk/v3/search/works"]
+access_method = "Authenticated REST API v3"
+authentication = "EEG_CORE_API_KEY"
+robots_applicability = "enforced"
+known_limitations = ["Quota constrained", "License and download fields vary by repository"]
+
+[[cards]]
+source_code = "boston_fed"
+scope = "Research and policy publication pages dated 2010-present"
+entry_points = ["https://www.bostonfed.org/sitemap.xml"]
+access_method = "First-party sitemap, publication HTML, and linked PDF"
+authentication = "none"
+robots_applicability = "enforced"
+known_limitations = ["Sitemap titles are enriched only after page acquisition", "Historical page structure varies"]
+
+[[cards]]
+source_code = "board_fomc"
+scope = "FEDS and IFDP 2010-present; FOMC statements, minutes, and projections 2000-present"
+entry_points = [
+  "https://www.federalreserve.gov/feeds/feds.xml",
+  "https://www.federalreserve.gov/feeds/ifdp.xml",
+  "https://www.federalreserve.gov/feeds/press_monetary.xml",
+  "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+]
+access_method = "First-party RSS and current/historical FOMC indexes"
+authentication = "none"
+robots_applicability = "enforced"
+known_limitations = ["Feed windows are finite", "Historical index markup varies by year"]

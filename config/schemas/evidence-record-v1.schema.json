@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:eeg:schema:evidence-record:v1",
+  "title": "Economic Evidence Graph evidence record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "work_id", "document_version_id", "record_type", "schema_version", "fields"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "work_id": {"type": "string", "minLength": 1},
+    "document_version_id": {"type": "string", "minLength": 1},
+    "record_type": {
+      "enum": [
+        "empirical_estimate",
+        "qualitative_finding",
+        "policy_statement",
+        "forecast_projection",
+        "descriptive_statistic"
+      ]
+    },
+    "schema_version": {"const": "eeg.macro-evidence.v1"},
+    "fields": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/field_revision"}
+    }
+  },
+  "$defs": {
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_unit_id", "locator", "quote"],
+      "properties": {
+        "evidence_unit_id": {"type": "string", "minLength": 1},
+        "locator": {"type": "string", "minLength": 1},
+        "quote": {"type": "string", "minLength": 1}
+      }
+    },
+    "field_revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "field_name",
+        "display_value",
+        "normalized_value",
+        "units",
+        "applicability",
+        "state",
+        "lineage_method",
+        "confidence",
+        "anchors"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "field_name": {"type": "string", "pattern": "^[a-z][a-z0-9_]+$"},
+        "display_value": {"type": "string", "minLength": 1},
+        "normalized_value": {"type": ["string", "number", "integer", "boolean", "null"]},
+        "units": {"type": ["string", "null"]},
+        "applicability": {"type": "string", "minLength": 1},
+        "state": {"enum": ["observed", "suggested", "approved", "rejected", "uncertain", "superseded"]},
+        "lineage_method": {"type": "string", "pattern": "^[a-z][a-z0-9_]+$"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "anchors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/anchor"}}
+      }
+    }
+  }
+}

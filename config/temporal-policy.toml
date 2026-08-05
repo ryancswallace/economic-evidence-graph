@@ -1,0 +1,27 @@
+# cspell:words cutoff
+schema_version = "eeg.temporal-policy.v1"
+mode = "strict"
+
+[eligibility]
+allowed_safety_classes = ["T0", "T1"]
+unknown_availability = "exclude"
+apply_before_candidate_generation = true
+later_annotations = "exclude"
+later_document_versions = "exclude"
+uncertainty_behavior = "surface_and_exclude"
+
+[date_precedence]
+rules = [
+  "verified_direct_observation",
+  "approved_upstream_observation",
+  "official_release_timestamp_with_evidence",
+  "asserted_publication_or_revision_date",
+]
+asserted_dates_are_observations = false
+backfill_requires_basis_and_confidence = true
+
+[learned_artifacts]
+default_safety_class = "T2"
+strict_mode_behavior = "exclude_unless_certified"
+certification_required = true
+certification_scope = "artifact_version_and_cutoff_range"

@@ -1,0 +1,61 @@
+{
+  "schema_version": "eeg.benchmark-plan.v1",
+  "name": "macroeconomics-and-federal-reserve-policy-pilot",
+  "minimum_task_count": 60,
+  "task_strata": [
+    {
+      "code": "general_literature_review",
+      "count": 15,
+      "workflows": ["known_item", "broad_discovery", "focused_evidence", "abstention"]
+    },
+    {
+      "code": "compare_economic_estimates",
+      "count": 12,
+      "workflows": ["estimand_alignment", "design_comparison", "version_comparison"]
+    },
+    {
+      "code": "historical_reconstruction",
+      "count": 12,
+      "workflows": ["strict_cutoff", "date_uncertainty", "leakage_negative"]
+    },
+    {
+      "code": "trace_research_into_policy",
+      "count": 10,
+      "workflows": ["direct_citation", "explicit_mention", "shared_source", "topical_candidate"]
+    },
+    {
+      "code": "research_assistant_review",
+      "count": 6,
+      "workflows": ["screening", "search_update", "reproducible_handoff"]
+    },
+    {
+      "code": "agent_retrieval",
+      "count": 5,
+      "workflows": ["structured_result", "bounded_traversal", "abstention"]
+    }
+  ],
+  "topic_balance": [
+    "inflation_and_expectations",
+    "labor_markets",
+    "monetary_policy_transmission",
+    "financial_conditions_and_stability",
+    "current_conditions_and_forecasts"
+  ],
+  "required_annotations": [
+    "question",
+    "relevant_work_ids",
+    "evidence_unit_ids",
+    "hard_negative_ids",
+    "duplicate_and_version_cases",
+    "cutoff_decisions",
+    "relationship_types",
+    "valid_abstention_behavior",
+    "adjudication_status"
+  ],
+  "split_policy": {
+    "development": 0.5,
+    "validation": 0.25,
+    "test": 0.25,
+    "group_by": ["question_family", "work_family"]
+  }
+}

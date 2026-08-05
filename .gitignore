@@ -26,6 +26,7 @@ htmlcov/
 reports/
 
 # Environment and secrets
+.eeg/
 .env
 .env.*
 !.env.example
@@ -43,4 +44,5 @@ pnpm-debug.log*
 .npm/
 
 # Local notes
+dev/
 TODO.md
