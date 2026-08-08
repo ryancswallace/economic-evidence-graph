@@ -264,9 +264,9 @@ def test_board_rejects_malformed_feed_and_cursor() -> None:
 
 
 def test_boston_sitemap_discovery_filters_scope_and_dates() -> None:
-    """Boston Fed discovery keeps approved publication families from 2010 onward."""
+    """Boston Fed discovery keeps scoped URLs and removes web filename suffixes from titles."""
     sitemap = b"""<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      <url><loc>https://www.bostonfed.org/publications/research-department-working-paper/2024/a-paper</loc></url>
+      <url><loc>https://www.bostonfed.org/publications/research-department-working-paper/2024/a-paper.Aspx</loc></url>
       <url><loc>https://www.bostonfed.org/publications/research-department-working-paper/2009/old</loc></url>
       <url><loc>https://www.bostonfed.org/about</loc></url></urlset>"""
     connector = BostonFedConnector(

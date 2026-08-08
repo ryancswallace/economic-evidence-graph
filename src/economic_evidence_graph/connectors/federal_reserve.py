@@ -28,6 +28,8 @@ _BOARD_ENDPOINTS = (
     ),
 )
 
+_WEB_DOCUMENT_SUFFIX = re.compile(r"\.(?:asp|aspx|cfm|htm|html|jsp|pdf|php)$", re.IGNORECASE)
+
 
 class BoardFomcConnector(GovernedConnector):
     """Discover Board working papers and FOMC policy documents from first-party indexes."""
@@ -204,6 +206,7 @@ def _in_boston_scope(url: str) -> bool:
 def _boston_record(url: str, observed_at: datetime) -> DiscoveryRecord:
     """Create a conservative metadata record from a first-party sitemap entry."""
     slug = urlsplit(url).path.rstrip("/").rsplit("/", 1)[-1]
+    slug = _WEB_DOCUMENT_SUFFIX.sub("", slug)
     title = re.sub(r"[-_]", " ", slug).strip().title()
     year_match = re.search(r"/(20\d{2})/", url)
     published = date(int(year_match.group(1)), 1, 1) if year_match else None
