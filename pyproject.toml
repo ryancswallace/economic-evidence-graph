@@ -61,7 +61,7 @@ Source = "https://github.com/ryancswallace/economic-evidence-graph"
 [dependency-groups]
 test = [
     "httpx>=0.28,<1",
-    "hypothesis>=6.164.0",
+    "hypothesis>=6.165.2",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
 ]
@@ -84,7 +84,7 @@ security = [
     "deptry>=0.25.1",
     "detect-secrets>=1.5.0",
     "pip-audit>=2.10.1",
-    "zizmor>=1.28.0",
+    "zizmor>=1.29.0",
 ]
 release = [
     "build>=1.5.0",
