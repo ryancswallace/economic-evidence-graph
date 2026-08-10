@@ -717,7 +717,7 @@ requires-dist = [
     { name = "defusedxml", specifier = ">=0.7,<1" },
     { name = "fastapi", specifier = ">=0.141.1,<1" },
     { name = "httpx", specifier = ">=0.28,<1" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.2,<4" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.3.4,<4" },
     { name = "pydantic", specifier = ">=2.13.4,<3" },
     { name = "pypdf", specifier = ">=6.1,<7" },
     { name = "sqlalchemy", specifier = ">=2.0,<3" },
