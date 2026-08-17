@@ -37,15 +37,15 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "alembic>=1.16,<2",
+    "alembic>=1.19.1,<2",
     "defusedxml>=0.7,<1",
     "fastapi>=0.141.1,<1",
     "httpx>=0.28,<1",
     "psycopg[binary]>=3.2,<4",
     "pydantic>=2.13.4,<3",
-    "pypdf>=6.1,<7",
-    "sqlalchemy>=2.0,<3",
-    "uvicorn>=0.35,<1",
+    "pypdf>=6.16.0,<7",
+    "sqlalchemy>=2.0.52,<3",
+    "uvicorn>=0.52.3,<1",
 ]
 
 [project.scripts]
@@ -61,16 +61,16 @@ Source = "https://github.com/ryancswallace/economic-evidence-graph"
 [dependency-groups]
 test = [
     "httpx>=0.28,<1",
-    "hypothesis>=6.164.0",
+    "hypothesis>=6.165.7",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
 ]
 lint = [
-    "pre-commit>=4.6.1",
-    "ruff>=0.16.1",
+    "pre-commit>=4.6.2",
+    "ruff>=0.16.3",
 ]
 type = [
-    "basedpyright>=1.39.9",
+    "basedpyright>=1.39.10",
 ]
 docs = [
     "linkchecker>=10.6.0",
@@ -84,7 +84,7 @@ security = [
     "deptry>=0.25.1",
     "detect-secrets>=1.5.0",
     "pip-audit>=2.10.1",
-    "zizmor>=1.28.0",
+    "zizmor>=1.29.0",
 ]
 release = [
     "build>=1.5.0",
@@ -92,7 +92,7 @@ release = [
     "twine>=7.0.0",
 ]
 automation = [
-    "nox>=2026.7.11",
+    "nox>=2026.8.10",
 ]
 dev = [
     { include-group = "automation" },
